@@ -1,0 +1,53 @@
+@import "tailwindcss";
+
+/* Tokens do guia de estilo (brandbook out/2024). */
+:root {
+  --cr-terra: #3d1c11;
+  --cr-areia: #e5dbd1;
+  --cr-folha: #6c9335;
+  --cr-folha-escura: #4a6b22;
+  --cr-areia-clara: #f4efe9;
+}
+
+@theme inline {
+  --color-terra: var(--cr-terra);
+  --color-areia: var(--cr-areia);
+  --color-folha: var(--cr-folha);
+  --color-folha-escura: var(--cr-folha-escura);
+  --color-areia-clara: var(--cr-areia-clara);
+  --font-display: var(--font-fraunces), Georgia, serif;
+  --font-sans: var(--font-outfit), "Segoe UI", sans-serif;
+}
+
+body {
+  background: var(--cr-areia-clara);
+  color: var(--cr-terra);
+}
+
+/* Títulos em caixa baixa, como no brandbook. */
+.titulo {
+  font-family: var(--font-display);
+  text-transform: lowercase;
+  letter-spacing: -0.01em;
+  line-height: 1.05;
+}
+
+.botao {
+  @apply inline-flex items-center justify-center rounded-full bg-folha-escura px-6 py-3 font-medium text-areia-clara transition hover:bg-terra focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-folha-escura disabled:opacity-50;
+}
+
+.botao-secundario {
+  @apply inline-flex items-center justify-center rounded-full border border-terra/30 px-6 py-3 font-medium text-terra transition hover:border-terra hover:bg-areia;
+}
+
+.campo {
+  @apply w-full rounded-xl border border-terra/20 bg-white px-4 py-3 text-terra placeholder:text-terra/40 focus:border-folha-escura focus:outline-none focus:ring-2 focus:ring-folha-escura/20;
+}
+
+.rotulo {
+  @apply mb-1 block text-sm font-medium text-terra/80;
+}
+
+.cartao {
+  @apply rounded-2xl border border-terra/10 bg-white/70 p-6;
+}
