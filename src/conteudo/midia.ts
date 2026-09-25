@@ -3,7 +3,7 @@ export const midia = {
   // Sequência de fotos do topo da home: tocam como um vídeo curto e param no último quadro,
   // com a Carol ao lado da logo. Sem quadros, o topo mostra só a logo.
   topo: {
-    quadros: [] as string[],
+    quadros: ["/midia/topo/carol-55.webp", "/midia/topo/carol-56.webp", "/midia/topo/carol-57.webp", "/midia/topo/carol-58.webp", "/midia/topo/carol-59.webp"] as string[],
     enquadramento: "50% 20%", // object-position das fotos no painel
   },
   galeria: [
