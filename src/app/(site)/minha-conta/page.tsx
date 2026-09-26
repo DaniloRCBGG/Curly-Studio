@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { CamposEndereco } from "@/components/CamposEndereco";
 import { redirect } from "next/navigation";
 import { formatarData, formatarHora } from "@/lib/agenda/horarios";
 import { exigirLogin } from "@/lib/auth/sessao";
@@ -120,10 +121,6 @@ export default async function MinhaConta({ searchParams }: PageProps<"/minha-con
               [
                 ["nome", "Nome", cliente.nome],
                 ["telefone", "Telefone", cliente.telefone],
-                ["cep", "CEP", cliente.cep],
-                ["bairro", "Bairro", cliente.bairro],
-                ["endereco", "Endereço", cliente.endereco],
-                ["cidade", "Cidade", cliente.cidade],
               ] as const
             ).map(([nome, rotulo, valor]) => (
               <div key={nome}>
@@ -131,6 +128,7 @@ export default async function MinhaConta({ searchParams }: PageProps<"/minha-con
                 <input className="campo" id={nome} name={nome} defaultValue={valor ?? ""} />
               </div>
             ))}
+            <CamposEndereco obrigatorio inicial={{ cep: cliente.cep ?? "", endereco: cliente.endereco ?? "", bairro: cliente.bairro ?? "", cidade: cliente.cidade ?? undefined }} />
             <p className="text-sm text-terra/60 sm:col-span-2">E-mail: {cliente.email}</p>
             <button className="botao sm:col-span-2 sm:justify-self-start">Salvar</button>
           </form>

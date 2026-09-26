@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useActionState } from "react";
 import { cadastrar, completarCadastro } from "@/app/(site)/entrar/actions";
+import { CamposEndereco } from "@/components/CamposEndereco";
 
 // "completar" é para quem entrou pelo Google: sem e-mail e senha, que já vieram do Google.
 export function FormCadastro({ voltar, completar = false, nome = "" }: { voltar: string; completar?: boolean; nome?: string }) {
@@ -34,22 +35,7 @@ export function FormCadastro({ voltar, completar = false, nome = "" }: { voltar:
           </div>
         </>
       )}
-      <div>
-        <label className="rotulo" htmlFor="cep">CEP</label>
-        <input className="campo" id="cep" name="cep" inputMode="numeric" autoComplete="postal-code" />
-      </div>
-      <div>
-        <label className="rotulo" htmlFor="bairro">Bairro</label>
-        <input className="campo" id="bairro" name="bairro" />
-      </div>
-      <div>
-        <label className="rotulo" htmlFor="endereco">Endereço</label>
-        <input className="campo" id="endereco" name="endereco" autoComplete="street-address" />
-      </div>
-      <div>
-        <label className="rotulo" htmlFor="cidade">Cidade</label>
-        <input className="campo" id="cidade" name="cidade" autoComplete="address-level2" defaultValue="Rio de Janeiro" />
-      </div>
+      <CamposEndereco obrigatorio />
       <label className="flex items-start gap-3 text-sm sm:col-span-2">
         <input type="checkbox" name="aceite" className="mt-1 size-4 accent-folha-escura" required />
         <span>

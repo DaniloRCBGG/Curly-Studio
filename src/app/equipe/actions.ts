@@ -71,6 +71,8 @@ export async function cadastrarCliente(form: FormData) {
       telefone: soDigitos(texto(form, "telefone")),
       email: texto(form, "email") || null,
       cpf: cpf || null,
+      cep: soDigitos(texto(form, "cep")) || null,
+      endereco: texto(form, "endereco") || null,
       bairro: texto(form, "bairro") || null,
       cidade: texto(form, "cidade") || null,
       aceite_privacidade_em: form.get("aceite") === "on" ? new Date().toISOString() : null,

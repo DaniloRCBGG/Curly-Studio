@@ -27,6 +27,7 @@ export async function cadastrar(_: EstadoForm, form: FormData): Promise<EstadoFo
 
   if (!nome || telefone.length < 10) return { erro: "Preencha nome e telefone com DDD." };
   if (!cpfValido(cpf)) return { erro: "CPF inválido. Ele é necessário para gerar o Pix do sinal." };
+  if (soDigitos(campo("cep")).length !== 8 || !campo("bairro")) return { erro: "Preencha o CEP e o bairro." };
   if (senha.length < 8) return { erro: "A senha precisa ter pelo menos 8 caracteres." };
   if (form.get("aceite") !== "on") return { erro: "Para continuar, aceite a política de privacidade." };
 
@@ -79,6 +80,7 @@ export async function completarCadastro(_: EstadoForm, form: FormData): Promise<
   const cpf = soDigitos(campo("cpf"));
   if (!nome || telefone.length < 10) return { erro: "Preencha nome e telefone com DDD." };
   if (!cpfValido(cpf)) return { erro: "CPF inválido. Ele é necessário para gerar o Pix do sinal." };
+  if (soDigitos(campo("cep")).length !== 8 || !campo("bairro")) return { erro: "Preencha o CEP e o bairro." };
   if (form.get("aceite") !== "on") return { erro: "Para continuar, aceite a política de privacidade." };
 
   const supabase = await criarClienteServidor();

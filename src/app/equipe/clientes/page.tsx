@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { CamposEndereco } from "@/components/CamposEndereco";
 import { exigirEquipe } from "@/lib/auth/sessao";
 import { cadastrarCliente } from "../actions";
 
@@ -61,14 +62,7 @@ export default async function Clientes({ searchParams }: PageProps<"/equipe/clie
             <input className="campo" id="email" name="email" type="email" />
           </div>
           <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="rotulo" htmlFor="bairro">Bairro</label>
-              <input className="campo" id="bairro" name="bairro" />
-            </div>
-            <div>
-              <label className="rotulo" htmlFor="cidade">Cidade</label>
-              <input className="campo" id="cidade" name="cidade" defaultValue="Niterói" />
-            </div>
+            <CamposEndereco />
           </div>
           <label className="flex items-start gap-2 text-sm">
             <input type="checkbox" name="aceite" className="mt-1 accent-folha-escura" />
