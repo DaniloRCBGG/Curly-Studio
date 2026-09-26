@@ -6,6 +6,7 @@ export const midia = {
     video: { mp4: "/midia/topo/topo.mp4", webm: "/midia/topo/topo.webm" } as { mp4: string; webm: string } | null,
     capa: "/midia/topo/topo-final.webp", // último quadro: aparece antes do vídeo carregar e para quem prefere menos movimento
     enquadramento: "50% 20%", // object-position do vídeo no painel
+    logoEm: 2.4, // segundos do vídeo em que a logo aparece: no meio da troca da foto 15 para a 17
   },
   galeria: [
     { src: "/midia/galeria/carol-10.webp", alt: "Carol sorrindo, de blazer rosé, em frente a uma parede de tijolos" },
