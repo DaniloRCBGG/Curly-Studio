@@ -42,7 +42,7 @@ body {
   @apply inline-flex items-center justify-center rounded-full bg-folha-escura px-6 py-3 font-medium text-areia-clara transition-colors duration-300 hover:bg-areia hover:text-folha-escura focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-areia;
 }
 .botao-no-escuro-secundario {
-  @apply inline-flex items-center justify-center rounded-full border border-areia/30 bg-areia/15 px-6 py-3 font-medium text-areia-clara transition-colors duration-300 hover:border-areia hover:bg-areia hover:text-folha-escura focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-areia;
+  @apply inline-flex items-center justify-center rounded-full border border-areia/30 bg-areia/15 px-6 py-3 font-medium text-areia-clara transition-colors duration-300 hover:border-areia hover:bg-areia hover:text-terra focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-areia;
 }
 
 .botao-secundario {
