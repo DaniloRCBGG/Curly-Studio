@@ -17,7 +17,15 @@ const STATUS: Record<string, string> = {
   expirado: "Expirado",
 };
 
-type Linha = { id: string; inicio: string; status: string; expira_em: string | null; servicos: { nome: string }; funcionarias: { nome: string } };
+type Linha = {
+  id: string;
+  inicio: string;
+  status: string;
+  expira_em: string | null;
+  servicos: { nome: string };
+  funcionarias: { nome: string };
+  sinais: { cliente_informou_em: string | null } | null;
+};
 
 export default async function MinhaConta({ searchParams }: PageProps<"/minha-conta">) {
   const { erro, ok } = await searchParams;
@@ -25,7 +33,7 @@ export default async function MinhaConta({ searchParams }: PageProps<"/minha-con
 
   const [{ data: cliente }, { data: agendamentos }] = await Promise.all([
     supabase.from("clientes").select("nome, telefone, email, cep, endereco, bairro, cidade").eq("usuario_id", user.id).maybeSingle(),
-    supabase.from("agendamentos").select("id, inicio, status, expira_em, servicos(nome), funcionarias(nome)").order("inicio", { ascending: false }).limit(30),
+    supabase.from("agendamentos").select("id, inicio, status, expira_em, servicos(nome), funcionarias(nome), sinais(cliente_informou_em)").order("inicio", { ascending: false }).limit(30),
   ]);
   if (!cliente && perfil === "cliente") redirect("/cadastro/completar?voltar=/minha-conta");
   const lista = (agendamentos ?? []) as unknown as Linha[];
@@ -71,13 +79,14 @@ export default async function MinhaConta({ searchParams }: PageProps<"/minha-con
                     {a.servicos.nome} com {a.funcionarias.nome}
                   </p>
                   <p className="text-sm text-terra/75">
-                    {formatarData(a.inicio)} às {formatarHora(a.inicio)} · {STATUS[a.status]}
+                    {formatarData(a.inicio)} às {formatarHora(a.inicio)} ·{" "}
+                    {a.status === "aguardando_sinal" && a.sinais?.cliente_informou_em ? "Aguardando o salão confirmar o Pix" : STATUS[a.status]}
                   </p>
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {a.status === "aguardando_sinal" && (
                     <Link href={`/agendar/pagamento/${a.id}`} className="botao py-2 text-sm">
-                      Pagar sinal
+                      {a.sinais?.cliente_informou_em ? "Ver pagamento" : "Pagar sinal"}
                     </Link>
                   )}
                   {a.status === "agendado" && (

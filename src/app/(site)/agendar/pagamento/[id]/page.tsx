@@ -4,8 +4,9 @@ import { notFound } from "next/navigation";
 import { AguardandoPix } from "@/components/AguardandoPix";
 import { formatarData, formatarHora } from "@/lib/agenda/horarios";
 import { exigirLogin } from "@/lib/auth/sessao";
-import { cancelarCobrancaPix, pixSimulado } from "@/lib/pagamentos/pix";
+import { cancelarCobrancaPix, modoPix } from "@/lib/pagamentos/pix";
 import { reais } from "@/lib/servicos";
+import { salao } from "@/conteudo/salao";
 
 export const metadata: Metadata = { title: "Pagamento do sinal" };
 
@@ -16,7 +17,16 @@ type Agendamento = {
   expira_em: string | null;
   servicos: { nome: string };
   funcionarias: { nome: string };
-  sinais: { valor: number; status: string; pix_copia_e_cola: string | null; pix_qr_code_base64: string | null; provedor_cobranca_id: string | null } | null;
+  clientes: { nome: string };
+  sinais: {
+    valor: number;
+    status: string;
+    forma: string;
+    pix_copia_e_cola: string | null;
+    pix_qr_code_base64: string | null;
+    provedor_cobranca_id: string | null;
+    cliente_informou_em: string | null;
+  } | null;
 };
 
 export default async function Pagamento({ params }: PageProps<"/agendar/pagamento/[id]">) {
@@ -24,7 +34,7 @@ export default async function Pagamento({ params }: PageProps<"/agendar/pagament
   const { supabase } = await exigirLogin(`/agendar/pagamento/${id}`);
   const { data } = await supabase
     .from("agendamentos")
-    .select("id, inicio, status, expira_em, servicos(nome), funcionarias(nome), sinais(valor, status, pix_copia_e_cola, pix_qr_code_base64, provedor_cobranca_id)")
+    .select("id, inicio, status, expira_em, servicos(nome), funcionarias(nome), clientes(nome), sinais(valor, status, forma, pix_copia_e_cola, pix_qr_code_base64, provedor_cobranca_id, cliente_informou_em)")
     .eq("id", id)
     .maybeSingle();
   if (!data) notFound();
@@ -36,6 +46,13 @@ export default async function Pagamento({ params }: PageProps<"/agendar/pagament
   }
 
   const resumo = `${ag.servicos.nome} com ${ag.funcionarias.nome}, ${formatarData(ag.inicio)} às ${formatarHora(ag.inicio)}`;
+  // O modo vem do sinal já gravado, para a tela não mudar se a configuração mudar depois.
+  const modo = ag.sinais?.forma === "pix_manual" ? "manual" : modoPix() === "simulado" ? "simulado" : "asaas";
+  const informado = Boolean(ag.sinais?.cliente_informou_em);
+  const valorSinal = ag.sinais ? reais(Number(ag.sinais.valor)) : "";
+  const whatsappComprovante = `${salao.contato.whatsappLink}&text=${encodeURIComponent(
+    `Oi! Sou ${ag.clientes.nome} e paguei o sinal de ${valorSinal} pelo Pix: ${resumo}. Segue o comprovante.`,
+  )}`;
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-12 sm:px-6">
@@ -52,7 +69,11 @@ export default async function Pagamento({ params }: PageProps<"/agendar/pagament
         <div className="cartao text-center">
           <h1 className="titulo text-4xl">o tempo para pagar acabou</h1>
           <p className="mt-4 text-terra/75">
-            O horário foi liberado porque o Pix não foi pago a tempo. Se você pagou agora há pouco, fale com o salão pelo WhatsApp que a gente resolve.
+            O horário foi liberado porque o Pix não foi pago a tempo. Se você pagou agora há pouco,{" "}
+            <a href={whatsappComprovante} target="_blank" rel="noopener" className="font-medium text-folha-escura underline underline-offset-4">
+              fale com o salão pelo WhatsApp
+            </a>{" "}
+            que a gente resolve.
           </p>
           <Link href="/agendar" className="botao mt-8">
             Escolher outro horário
@@ -60,10 +81,10 @@ export default async function Pagamento({ params }: PageProps<"/agendar/pagament
         </div>
       ) : ag.status === "aguardando_sinal" && ag.sinais ? (
         <div className="cartao">
-          <h1 className="titulo text-4xl">pague o sinal para confirmar</h1>
+          <h1 className="titulo text-4xl">{informado ? "aguardando o salão confirmar" : "pague o sinal para confirmar"}</h1>
           <p className="mt-3">{resumo}</p>
-          <p className="mt-1 text-terra/75">Sinal: {reais(Number(ag.sinais.valor))}</p>
-          {ag.sinais.pix_qr_code_base64 && (
+          <p className="mt-1 text-terra/75">Sinal: {valorSinal}</p>
+          {ag.sinais.pix_qr_code_base64 && !informado && (
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={`data:image/png;base64,${ag.sinais.pix_qr_code_base64}`}
@@ -73,7 +94,14 @@ export default async function Pagamento({ params }: PageProps<"/agendar/pagament
               className="mx-auto my-6 rounded-xl bg-white p-2"
             />
           )}
-          <AguardandoPix agendamentoId={ag.id} expiraEm={ag.expira_em!} copiaECola={ag.sinais.pix_copia_e_cola ?? ""} simulado={pixSimulado()} />
+          <AguardandoPix
+            agendamentoId={ag.id}
+            expiraEm={ag.expira_em!}
+            copiaECola={ag.sinais.pix_copia_e_cola ?? ""}
+            modo={modo}
+            informado={informado}
+            whatsappComprovante={whatsappComprovante}
+          />
         </div>
       ) : (
         <div className="cartao text-center">

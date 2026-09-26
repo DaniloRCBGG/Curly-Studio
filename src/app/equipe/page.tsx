@@ -2,7 +2,7 @@ import Link from "next/link";
 import { FUSO, formatarData, formatarHora, hojeEmSaoPaulo, somarDias } from "@/lib/agenda/horarios";
 import { exigirEquipe } from "@/lib/auth/sessao";
 import { reais } from "@/lib/servicos";
-import { mudarStatus } from "./actions";
+import { confirmarSinal, mudarStatus } from "./actions";
 
 type Linha = {
   id: string;
@@ -13,7 +13,7 @@ type Linha = {
   clientes: { nome: string; telefone: string | null; email: string | null };
   servicos: { nome: string };
   funcionarias: { nome: string };
-  sinais: { valor: number; status: string; forma: string } | null;
+  sinais: { valor: number; status: string; forma: string; cliente_informou_em: string | null } | null;
 };
 
 const SINAL: Record<string, string> = {
@@ -24,6 +24,16 @@ const SINAL: Record<string, string> = {
   cancelado: "sinal cancelado",
 };
 
+function descreverSinal(s: Linha["sinais"]) {
+  if (!s) return "sem sinal";
+  const valor = reais(Number(s.valor));
+  if (s.forma === "presencial") return `${valor} ${SINAL[s.status]} no salão`;
+  if (s.forma === "pix_manual" && s.status === "pendente") {
+    return s.cliente_informou_em ? `${valor} no Pix: a cliente diz que pagou, confira no banco` : `${valor} aguardando a cliente pagar o Pix`;
+  }
+  return `${valor} ${SINAL[s.status]}`;
+}
+
 // Agenda do dia (RF05).
 export default async function AgendaDoDia({ searchParams }: PageProps<"/equipe">) {
   const { data: dataParam } = await searchParams;
@@ -31,7 +41,7 @@ export default async function AgendaDoDia({ searchParams }: PageProps<"/equipe">
   const { supabase } = await exigirEquipe();
   const { data: linhas } = await supabase
     .from("agendamentos")
-    .select("id, inicio, fim, status, expira_em, clientes(nome, telefone, email), servicos(nome), funcionarias(nome), sinais(valor, status, forma)")
+    .select("id, inicio, fim, status, expira_em, clientes(nome, telefone, email), servicos(nome), funcionarias(nome), sinais(valor, status, forma, cliente_informou_em)")
     .gte("inicio", `${data}T00:00:00${FUSO}`)
     .lte("inicio", `${data}T23:59:59${FUSO}`)
     .in("status", ["agendado", "aguardando_sinal", "concluido"])
@@ -62,12 +72,18 @@ export default async function AgendaDoDia({ searchParams }: PageProps<"/equipe">
                 </p>
                 <p className="text-sm text-terra/75">
                   {a.clientes.nome} · {a.clientes.telefone ?? a.clientes.email} ·{" "}
-                  {a.sinais ? `${reais(Number(a.sinais.valor))} ${SINAL[a.sinais.status]}${a.sinais.forma === "presencial" ? " no salão" : ""}` : "sem sinal"}
+                  {descreverSinal(a.sinais)}
                   {a.status === "concluido" && " · concluído"}
                 </p>
               </div>
               {a.status !== "concluido" && (
                 <div className="flex gap-2">
+                  {a.status === "aguardando_sinal" && a.sinais?.forma === "pix_manual" && (
+                    <form action={confirmarSinal}>
+                      <input type="hidden" name="id" value={a.id} />
+                      <button className="botao py-2 text-sm">Confirmar sinal</button>
+                    </form>
+                  )}
                   {a.status === "agendado" && (
                     <form action={mudarStatus}>
                       <input type="hidden" name="id" value={a.id} />

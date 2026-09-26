@@ -1,20 +1,29 @@
 import "server-only";
 import QRCode from "qrcode";
 import { env } from "@/lib/env";
+import { montarPixCopiaECola } from "./pix-estatico";
 
-// Cobrança do sinal por Pix. Usa o Asaas quando ASAAS_API_KEY está configurada;
-// sem a chave, gera uma cobrança simulada para testar o fluxo sem dinheiro real.
+// Cobrança do sinal por Pix, em um de três modos:
+// - asaas: com ASAAS_API_KEY, cobrança no Asaas confirmada sozinha pelo webhook;
+// - manual: com PIX_CHAVE, Pix direto na chave da Carol, confirmado pela equipe no painel;
+// - simulado: sem nenhuma das duas, para testar o fluxo sem dinheiro real.
 
-export type ClientePix = { nome: string; cpf: string; email?: string | null; telefone?: string | null; asaasCustomerId?: string | null };
+export type ModoPix = "asaas" | "manual" | "simulado";
+
+export type ClientePix = { nome: string; cpf: string | null; email?: string | null; telefone?: string | null; asaasCustomerId?: string | null };
 
 export type CobrancaPix = {
   id: string;
   customerId: string | null;
   copiaECola: string;
   qrCodeBase64: string;
+  forma: "pix_online" | "pix_manual";
 };
 
-export const pixSimulado = () => !env.asaasApiKey();
+export const modoPix = (): ModoPix => (env.asaasApiKey() ? "asaas" : env.pixChave() ? "manual" : "simulado");
+export const pixSimulado = () => modoPix() === "simulado";
+
+const qrCode = async (texto: string) => (await QRCode.toDataURL(texto, { margin: 1, width: 480 })).replace(/^data:image\/png;base64,/, "");
 
 async function asaas<T>(caminho: string, init: RequestInit = {}): Promise<T> {
   const resposta = await fetch(`${env.asaasBaseUrl()}${caminho}`, {
@@ -39,12 +48,16 @@ export async function criarCobrancaPix(params: {
   descricao: string;
   referencia: string; // id do agendamento
 }): Promise<CobrancaPix> {
-  if (pixSimulado()) {
-    const id = `simulado_${params.referencia}`;
+  const modo = modoPix();
+  if (modo === "simulado") {
     const copiaECola = `PIX-SIMULADO|${params.referencia}|${params.valor.toFixed(2)}`;
-    const qrCodeBase64 = (await QRCode.toDataURL(copiaECola)).replace(/^data:image\/png;base64,/, "");
-    return { id, customerId: null, copiaECola, qrCodeBase64 };
+    return { id: `simulado_${params.referencia}`, customerId: null, copiaECola, qrCodeBase64: await qrCode(copiaECola), forma: "pix_online" };
   }
+  if (modo === "manual") {
+    const copiaECola = montarPixCopiaECola({ chave: env.pixChave()!, nome: env.pixNome(), cidade: env.pixCidade(), valor: params.valor, identificador: params.referencia });
+    return { id: `manual_${params.referencia}`, customerId: null, copiaECola, qrCodeBase64: await qrCode(copiaECola), forma: "pix_manual" };
+  }
+  if (!params.cliente.cpf) throw new Error("Cliente sem CPF");
 
   let customerId = params.cliente.asaasCustomerId ?? null;
   if (!customerId) {
@@ -74,12 +87,12 @@ export async function criarCobrancaPix(params: {
     }),
   });
   const qr = await asaas<{ encodedImage: string; payload: string }>(`/payments/${cobranca.id}/pixQrCode`);
-  return { id: cobranca.id, customerId, copiaECola: qr.payload, qrCodeBase64: qr.encodedImage };
+  return { id: cobranca.id, customerId, copiaECola: qr.payload, qrCodeBase64: qr.encodedImage, forma: "pix_online" };
 }
 
 // Cancela a cobrança quando a reserva expira, para o QR code não poder mais ser pago.
 export async function cancelarCobrancaPix(id: string): Promise<void> {
-  if (pixSimulado() || id.startsWith("simulado_")) return;
+  if (modoPix() !== "asaas" || id.startsWith("simulado_") || id.startsWith("manual_")) return;
   try {
     await asaas(`/payments/${id}`, { method: "DELETE" });
   } catch (erro) {

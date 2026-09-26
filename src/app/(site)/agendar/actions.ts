@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 import { disponibilidade } from "@/lib/agenda/disponibilidade";
 import { formatarData, formatarHora } from "@/lib/agenda/horarios";
-import { criarCobrancaPix } from "@/lib/pagamentos/pix";
+import { criarCobrancaPix, modoPix } from "@/lib/pagamentos/pix";
 import { ehTamanho, type Tamanho } from "@/lib/servicos-tabela";
 import { criarClienteAdmin } from "@/lib/supabase/admin";
 import { criarClienteServidor } from "@/lib/supabase/server";
@@ -52,6 +52,8 @@ export async function iniciarAgendamento(form: FormData) {
     p_funcionaria_id: funcionariaId,
     p_inicio: inicio,
     p_tamanho: tamanho,
+    // No Pix manual a cliente troca de app para pagar: reserva por mais tempo.
+    p_minutos_reserva: modoPix() === "manual" ? 30 : 15,
   });
   if (error || !agendamentoId) redirect(`${voltar}&erro=${encodeURIComponent(erroDe(error?.message ?? ""))}`);
 
@@ -62,7 +64,7 @@ export async function iniciarAgendamento(form: FormData) {
   ]);
 
   try {
-    if (!cliente?.cpf) throw new Error("Cliente sem CPF");
+    if (!cliente) throw new Error("Ficha não encontrada");
     const cobranca = await criarCobrancaPix({
       cliente: { nome: cliente.nome, cpf: cliente.cpf, email: cliente.email, telefone: cliente.telefone, asaasCustomerId: cliente.asaas_customer_id },
       valor: Number(servico!.valor_sinal),
@@ -72,6 +74,7 @@ export async function iniciarAgendamento(form: FormData) {
     await admin.from("sinais").insert({
       agendamento_id: agendamentoId,
       valor: servico!.valor_sinal,
+      forma: cobranca.forma,
       provedor_cobranca_id: cobranca.id,
       pix_copia_e_cola: cobranca.copiaECola,
       pix_qr_code_base64: cobranca.qrCodeBase64,

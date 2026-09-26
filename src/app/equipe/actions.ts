@@ -23,6 +23,14 @@ export async function mudarStatus(form: FormData) {
     .from("agendamentos")
     .update({ status, ...(status === "cancelado" ? { cancelado_em: new Date().toISOString() } : {}) })
     .eq("id", texto(form, "id"));
+  if (status === "cancelado") await supabase.from("sinais").update({ status: "cancelado" }).eq("agendamento_id", texto(form, "id")).eq("status", "pendente");
+  revalidatePath("/equipe");
+}
+
+// Pix manual: a equipe conferiu no banco que o sinal caiu.
+export async function confirmarSinal(form: FormData) {
+  const { supabase } = await exigirEquipe();
+  await supabase.rpc("confirmar_sinal_manual", { p_agendamento_id: texto(form, "id") });
   revalidatePath("/equipe");
 }
 
