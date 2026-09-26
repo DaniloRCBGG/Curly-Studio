@@ -47,34 +47,38 @@ export function Hero() {
         {/* Painel da foto: no celular fica em cima; no computador, à direita. */}
         {video && (
           <motion.div style={{ y: yFoto }} className="relative order-first h-[62svh] md:order-last md:h-auto">
-            <motion.div
-              className="absolute inset-0"
-              initial={{ opacity: 0, scale: 1.04, filter: "blur(8px)" }}
-              animate={tocando || pronta ? { opacity: 1, scale: 1, filter: "blur(0px)" } : {}}
-              transition={{ duration: 1.1, ease: suave }}
-            >
-              {reduzir ? (
-                <Image src={midia.topo.capa} alt="Carol Rios" fill priority sizes="(min-width: 768px) 50vw, 100vw" className="object-cover" style={{ objectPosition: midia.topo.enquadramento }} />
-              ) : (
-                <video
-                  ref={player}
-                  className="h-full w-full object-cover"
-                  style={{ objectPosition: midia.topo.enquadramento }}
-                  poster={midia.topo.capa}
-                  muted
-                  playsInline
-                  preload="auto"
-                  aria-label="Carol Rios"
-                  onPlaying={() => setTocando(true)}
-                  onEnded={() => setPronta(true)}
-                >
-                  <source src={video.webm} type="video/webm" />
-                  <source src={video.mp4} type="video/mp4" />
-                </video>
-              )}
-            </motion.div>
-            {/* Funde a foto com o fundo terra. */}
-            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-terra via-transparent to-transparent md:bg-gradient-to-r md:from-terra md:via-terra/10" />
+            {/* A máscara dissolve o vídeo no fundo terra e fica por fora da animação,
+                para o desfoque de entrada nunca vazar além dela. */}
+            <div className="topo-mascara absolute inset-0 overflow-hidden">
+              <motion.div
+                className="absolute inset-0"
+                initial={{ opacity: 0, filter: "blur(8px)" }}
+                animate={tocando || pronta ? { opacity: 1, filter: "blur(0px)" } : {}}
+                transition={{ duration: 1.1, ease: suave }}
+              >
+                {reduzir ? (
+                  <Image src={midia.topo.capa} alt="Carol Rios" fill priority sizes="(min-width: 768px) 50vw, 100vw" className="object-cover" style={{ objectPosition: midia.topo.enquadramento }} />
+                ) : (
+                  <video
+                    ref={player}
+                    className="h-full w-full object-cover"
+                    style={{ objectPosition: midia.topo.enquadramento }}
+                    poster={midia.topo.capa}
+                    muted
+                    playsInline
+                    preload="auto"
+                    aria-label="Carol Rios"
+                    onPlaying={() => setTocando(true)}
+                    onEnded={() => setPronta(true)}
+                  >
+                    <source src={video.webm} type="video/webm" />
+                    <source src={video.mp4} type="video/mp4" />
+                  </video>
+                )}
+              </motion.div>
+            </div>
+            {/* Véu desfocado e sempre ativo na borda onde o vídeo encontra o fundo (onde fica a logo). */}
+            <div className="topo-veu pointer-events-none absolute inset-0 bg-terra/25 backdrop-blur-md" />
             <motion.div
               className="absolute bottom-6 left-4 w-40 md:top-1/2 md:bottom-auto md:left-0 md:w-56 md:-translate-x-1/2 md:-translate-y-1/2"
               initial={{ opacity: 0, scale: 0.9, filter: "blur(10px)" }}
