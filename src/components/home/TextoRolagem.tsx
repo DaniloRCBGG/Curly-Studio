@@ -13,9 +13,10 @@ function Palavra({ texto, progresso, faixa }: { texto: string; progresso: Motion
 }
 
 // Texto que vai "acendendo" palavra por palavra conforme a pessoa rola a página.
+// Termina de acender quando o fim do texto chega a 78% da altura da tela, com o topo ainda à vista.
 export function TextoRolagem({ texto, className }: { texto: string; className?: string }) {
   const alvo = useRef<HTMLParagraphElement>(null);
-  const { scrollYProgress } = useScroll({ target: alvo, offset: ["start 0.85", "end 0.45"] });
+  const { scrollYProgress } = useScroll({ target: alvo, offset: ["start 0.95", "end 0.78"] });
   const palavras = texto.split(" ");
   return (
     <p ref={alvo} className={className} aria-label={texto}>

@@ -77,3 +77,22 @@ body {
     mask-composite: intersect;
   }
 }
+
+/* Barra de rolagem nas cores da marca: verde sobre areia. */
+html {
+  scrollbar-color: var(--cr-folha-escura) var(--cr-areia-clara);
+}
+::-webkit-scrollbar {
+  width: 12px;
+}
+::-webkit-scrollbar-track {
+  background: var(--cr-areia-clara);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--cr-folha-escura);
+  border: 3px solid var(--cr-areia-clara);
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--cr-folha);
+}
