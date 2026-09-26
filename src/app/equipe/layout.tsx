@@ -5,12 +5,15 @@ import { exigirEquipe } from "@/lib/auth/sessao";
 export const metadata = { title: "Painel da equipe" };
 
 export default async function LayoutEquipe({ children }: LayoutProps<"/equipe">) {
-  const { perfil } = await exigirEquipe();
+  const { perfil, supabase } = await exigirEquipe();
+  // Aviso de estoque baixo no menu (RF13), para a equipe ver em qualquer tela.
+  const { count: estoqueBaixo } = await supabase.from("produtos_estoque_baixo").select("id", { count: "exact", head: true });
   const links = [
     { href: "/equipe", rotulo: "Agenda" },
     { href: "/equipe/novo", rotulo: "Novo agendamento" },
     { href: "/equipe/clientes", rotulo: "Clientes" },
     { href: "/equipe/servicos", rotulo: "Serviços" },
+    { href: "/equipe/estoque", rotulo: "Estoque", aviso: estoqueBaixo ?? 0 },
     ...(perfil === "gerente" ? [{ href: "/equipe/funcionarias", rotulo: "Equipe" }] : []),
   ];
   return (
@@ -24,6 +27,12 @@ export default async function LayoutEquipe({ children }: LayoutProps<"/equipe">)
             {links.map((l) => (
               <Link key={l.href} href={l.href} className="rounded-full px-3 py-2 hover:bg-areia">
                 {l.rotulo}
+                {"aviso" in l && !!l.aviso && (
+                  <span className="ml-1.5 rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-900" title="Produtos com estoque baixo">
+                    {l.aviso}
+                    <span className="sr-only"> com estoque baixo</span>
+                  </span>
+                )}
               </Link>
             ))}
           </nav>

@@ -14,3 +14,12 @@ insert into public.funcionaria_servicos values
   ('10000000-0000-0000-0000-000000000001', '20000000-0000-0000-0000-000000000002'),
   ('10000000-0000-0000-0000-000000000002', '20000000-0000-0000-0000-000000000002'),
   ('10000000-0000-0000-0000-000000000002', '20000000-0000-0000-0000-000000000003');
+
+-- Estoque de exemplo.
+insert into public.fornecedores (id, nome, telefone) values
+  ('30000000-0000-0000-0000-000000000001', 'Distribuidora Cachos', '21988887777');
+
+insert into public.produtos (id, nome, marca, unidade, tamanho_embalagem, valor_embalagem, fornecedor_id) values
+  ('40000000-0000-0000-0000-000000000001', 'Máscara de hidratação', 'Exemplo', 'g', 1000, 89.90, '30000000-0000-0000-0000-000000000001'),
+  ('40000000-0000-0000-0000-000000000002', 'Creme de pentear', 'Exemplo', 'ml', 500, 45.00, '30000000-0000-0000-0000-000000000001'),
+  ('40000000-0000-0000-0000-000000000003', 'Touca térmica', null, 'un', 1, 12.00, null);
