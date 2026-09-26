@@ -1,6 +1,6 @@
 "use client";
 
-import { AnimatePresence, motion, useReducedMotion, useScroll, useTransform } from "motion/react";
+import { motion, useReducedMotion, useScroll, useTransform } from "motion/react";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
@@ -8,40 +8,29 @@ import { midia } from "@/conteudo/midia";
 import { salao } from "@/conteudo/salao";
 
 const suave = [0.22, 1, 0.36, 1] as const;
-const MS_POR_QUADRO = 520;
 
-function carregar(src: string) {
-  return new Promise<void>((resolve) => {
-    const img = new window.Image();
-    img.onload = img.onerror = () => resolve();
-    img.src = src;
-  });
-}
-
-// Topo da home: a sequência de fotos da Carol toca como um vídeo curto e para no último quadro,
-// ao lado da logo. Depois o texto entra palavra por palavra, e tudo se move devagar ao rolar.
+// Topo da home: o vídeo da Carol toca uma vez e para no último quadro, ao lado da logo.
+// Depois o texto entra palavra por palavra, e tudo se move devagar ao rolar.
 export function Hero() {
   const reduzir = useReducedMotion();
-  const quadros = midia.topo.quadros;
-  const [quadro, setQuadro] = useState(-1); // -1 = ainda carregando as fotos
-  const ultimo = quadros.length - 1;
-  const pronta = quadros.length === 0 || quadro === ultimo;
+  const video = midia.topo.video;
+  const [pronta, setPronta] = useState(!video);
+  const [tocando, setTocando] = useState(false);
+  const player = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
-    if (quadros.length === 0) return;
-    let cancelado = false;
-    const timers: ReturnType<typeof setTimeout>[] = [];
-    Promise.all(quadros.map(carregar)).then(() => {
-      if (cancelado) return;
-      if (reduzir) return setQuadro(quadros.length - 1);
-      // O primeiro quadro entra com movimento; os seguintes se sucedem como num vídeo.
-      quadros.forEach((_, i) => timers.push(setTimeout(() => setQuadro(i), i === 0 ? 0 : 900 + (i - 1) * MS_POR_QUADRO)));
-    });
-    return () => {
-      cancelado = true;
-      timers.forEach(clearTimeout);
-    };
-  }, [quadros, reduzir]);
+    if (!video) return;
+    const v = player.current;
+    // Com movimento reduzido fica só a capa (último quadro), e o texto entra logo.
+    if (reduzir || !v) {
+      const agora = setTimeout(() => setPronta(true), 0);
+      return () => clearTimeout(agora);
+    }
+    // Se o navegador bloquear o autoplay (ex.: modo economia no iPhone), fica a capa e o texto entra.
+    const reserva = setTimeout(() => setPronta(true), 4000);
+    v.play().catch(() => setPronta(true));
+    return () => clearTimeout(reserva);
+  }, [video, reduzir]);
 
   const secao = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({ target: secao, offset: ["start start", "end start"] });
@@ -56,23 +45,34 @@ export function Hero() {
     <section ref={secao} className="relative isolate overflow-hidden bg-terra text-areia">
       <div className="mx-auto grid min-h-[92svh] max-w-7xl md:grid-cols-[1fr_1fr]">
         {/* Painel da foto: no celular fica em cima; no computador, à direita. */}
-        {quadros.length > 0 && (
+        {video && (
           <motion.div style={{ y: yFoto }} className="relative order-first h-[62svh] md:order-last md:h-auto">
-            <AnimatePresence initial={false}>
-              {quadro >= 0 && (
-                <motion.img
-                  key={quadro}
-                  src={quadros[quadro]}
-                  alt={quadro === ultimo ? "Carol Rios" : ""}
-                  className="absolute inset-0 h-full w-full object-cover"
+            <motion.div
+              className="absolute inset-0"
+              initial={{ opacity: 0, scale: 1.04, filter: "blur(8px)" }}
+              animate={tocando || pronta ? { opacity: 1, scale: 1, filter: "blur(0px)" } : {}}
+              transition={{ duration: 1.1, ease: suave }}
+            >
+              {reduzir ? (
+                <Image src={midia.topo.capa} alt="Carol Rios" fill priority sizes="(min-width: 768px) 50vw, 100vw" className="object-cover" style={{ objectPosition: midia.topo.enquadramento }} />
+              ) : (
+                <video
+                  ref={player}
+                  className="h-full w-full object-cover"
                   style={{ objectPosition: midia.topo.enquadramento }}
-                  initial={quadro === 0 ? { opacity: 0, x: 80, filter: "blur(10px)" } : { opacity: 0 }}
-                  animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
-                  exit={{ opacity: 0, transition: { duration: 0.35, delay: 0.1 } }}
-                  transition={quadro === 0 ? { duration: 0.9, ease: suave } : { duration: 0.3 }}
-                />
+                  poster={midia.topo.capa}
+                  muted
+                  playsInline
+                  preload="auto"
+                  aria-label="Carol Rios"
+                  onPlaying={() => setTocando(true)}
+                  onEnded={() => setPronta(true)}
+                >
+                  <source src={video.webm} type="video/webm" />
+                  <source src={video.mp4} type="video/mp4" />
+                </video>
               )}
-            </AnimatePresence>
+            </motion.div>
             {/* Funde a foto com o fundo terra. */}
             <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-terra via-transparent to-transparent md:bg-gradient-to-r md:from-terra md:via-terra/10" />
             <motion.div
@@ -86,7 +86,7 @@ export function Hero() {
           </motion.div>
         )}
 
-        {quadros.length === 0 && (
+        {!video && (
           <motion.div
             className="order-last hidden items-center justify-center md:flex"
             initial={{ opacity: 0, scale: 0.9, filter: "blur(12px)", clipPath: "circle(0% at 50% 50%)" }}

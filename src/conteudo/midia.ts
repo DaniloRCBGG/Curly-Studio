@@ -1,10 +1,11 @@
 // Fotos do site, em public/midia/ (otimizadas em .webp).
 export const midia = {
-  // Sequência de fotos do topo da home: tocam como um vídeo curto e param no último quadro,
-  // com a Carol ao lado da logo. Sem quadros, o topo mostra só a logo.
+  // Vídeo do topo da home (gerado das fotos carol-15/16/17 por scripts/gerar-video-topo.py):
+  // toca uma vez e para no último quadro, com a Carol ao lado da logo. Sem vídeo, o topo mostra só a logo.
   topo: {
-    quadros: ["/midia/topo/carol-15.webp", "/midia/topo/carol-16.webp", "/midia/topo/carol-17.webp"] as string[],
-    enquadramento: "50% 20%", // object-position das fotos no painel
+    video: { mp4: "/midia/topo/topo.mp4", webm: "/midia/topo/topo.webm" } as { mp4: string; webm: string } | null,
+    capa: "/midia/topo/topo-final.webp", // último quadro: aparece antes do vídeo carregar e para quem prefere menos movimento
+    enquadramento: "50% 20%", // object-position do vídeo no painel
   },
   galeria: [
     { src: "/midia/galeria/carol-10.webp", alt: "Carol sorrindo, de blazer rosé, em frente a uma parede de tijolos" },
