@@ -1,4 +1,5 @@
 import { exigirGerente } from "@/lib/auth/sessao";
+import { criarClienteAdmin } from "@/lib/supabase/admin";
 import { salvarFuncionaria } from "../actions";
 
 type Funcionaria = {
@@ -76,8 +77,9 @@ function FormFuncionaria({ f }: { f?: Funcionaria }) {
 
 export default async function Equipe({ searchParams }: PageProps<"/equipe/funcionarias">) {
   const { erro, ok } = await searchParams;
-  const { supabase } = await exigirGerente();
-  const { data } = await supabase
+  await exigirGerente();
+  // Diária e comissão não saem pela API pública: só a gerente vê, lidas aqui pelo servidor.
+  const { data } = await criarClienteAdmin()
     .from("funcionarias")
     .select("id, nome, cargo, valor_diaria_semana, valor_diaria_sabado, percentual_comissao, atende, ativa, usuario_id")
     .order("nome");
