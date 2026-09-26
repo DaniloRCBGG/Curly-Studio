@@ -43,7 +43,8 @@ export function Hero() {
 
   return (
     <section ref={secao} className="relative isolate overflow-hidden bg-terra text-areia">
-      <div className="mx-auto grid min-h-[92svh] max-w-7xl md:grid-cols-[1fr_1fr]">
+      {/* Sem margem: o vídeo vai até a borda direita da tela; o texto fica alinhado com o cabeçalho. */}
+      <div className="grid min-h-[92svh] md:grid-cols-2">
         {/* Painel da foto: no celular fica em cima; no computador, à direita. */}
         {video && (
           <motion.div style={{ y: yFoto }} className="relative order-first h-[62svh] md:order-last md:h-auto">
@@ -78,12 +79,12 @@ export function Hero() {
               </motion.div>
             </div>
             <motion.div
-              className="absolute bottom-6 left-4 w-40 md:top-1/2 md:bottom-auto md:left-0 md:w-56 md:-translate-x-1/2 md:-translate-y-1/2"
+              className="absolute bottom-6 left-4 w-44 md:top-1/2 md:bottom-auto md:left-0 md:w-64 md:-translate-x-1/3 md:-translate-y-1/2 lg:w-80"
               initial={{ opacity: 0, scale: 0.9, filter: "blur(10px)" }}
               animate={pronta ? { opacity: 1, scale: 1, filter: "blur(0px)" } : {}}
               transition={{ duration: 1.2, ease: suave }}
             >
-              <Image src="/marca/logo-secundaria-clara.svg" alt="" width={224} height={156} aria-hidden priority />
+              <Image src="/marca/logo-secundaria-clara.svg" alt="" width={320} height={223} aria-hidden priority className="h-auto w-full" />
             </motion.div>
           </motion.div>
         )}
@@ -99,9 +100,9 @@ export function Hero() {
           </motion.div>
         )}
 
-        <motion.div style={{ y: yTexto, opacity: opacidade }} className="flex items-center px-4 pt-6 pb-20 sm:px-6 md:py-20 md:pr-16 lg:pl-8">
+        <motion.div style={{ y: yTexto, opacity: opacidade }} className="flex items-center px-4 pt-6 pb-20 sm:px-6 md:py-20 md:pr-20 md:pl-[max(1.5rem,calc((100vw-72rem)/2+1.5rem))] lg:pr-28">
           <div className="max-w-xl">
-            <h1 className="titulo text-5xl text-areia-clara sm:text-6xl lg:text-7xl" aria-label={salao.chamada}>
+            <h1 className="titulo text-5xl text-areia-clara sm:text-6xl" aria-label={salao.chamada}>
               {palavras.map((p, i) => (
                 <span key={i} className="inline-block overflow-hidden pb-2 align-bottom" aria-hidden>
                   <motion.span
@@ -117,7 +118,7 @@ export function Hero() {
               ))}
             </h1>
             <motion.p
-              className="mt-6 text-lg text-areia"
+              className="mt-6 max-w-md text-lg text-areia"
               initial={{ opacity: 0, y: 16 }}
               animate={pronta ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.9, delay: 0.4 + palavras.length * 0.09, ease: suave }}
