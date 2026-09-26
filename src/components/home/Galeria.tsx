@@ -3,6 +3,7 @@
 import { motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import { midia } from "@/conteudo/midia";
+import { CabecalhoSecao } from "./CabecalhoSecao";
 
 // Galeria que se arrasta para o lado. Sem fotos cadastradas, mostra espaços reservados.
 export function Galeria() {
@@ -31,9 +32,8 @@ export function Galeria() {
 
   return (
     <section className="overflow-hidden bg-areia py-20">
-      <div className="mx-auto flex max-w-6xl items-end justify-between px-4 sm:px-6">
-        <h2 className="titulo text-4xl sm:text-5xl">nossos cachos</h2>
-        <p className="hidden text-sm text-terra/60 sm:block">Arraste para o lado</p>
+      <div className="mx-auto max-w-6xl px-4 sm:px-6">
+        <CabecalhoSecao rotulo="Galeria" titulo="nossos cachos" acao={<p className="hidden text-sm text-terra/85 sm:block">Arraste para o lado</p>} />
       </div>
       <div ref={trilho} className="mt-10 cursor-grab px-4 active:cursor-grabbing sm:px-[max(1.5rem,calc((100vw-72rem)/2+1.5rem))]">
         <motion.div ref={faixa} className="flex w-max gap-4" drag="x" dragConstraints={{ left: limite, right: 0 }} dragElastic={0.08}>
