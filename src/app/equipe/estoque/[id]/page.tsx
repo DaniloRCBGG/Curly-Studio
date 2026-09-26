@@ -6,7 +6,7 @@ import { reais } from "@/lib/servicos";
 import { movimentar, salvarProduto } from "../actions";
 import { CamposProduto } from "../CamposProduto";
 
-type Movimentacao = { id: string; tipo: "entrada" | "saida" | "ajuste"; quantidade: number; estoque_depois: number; valor_total: number | null; observacao: string | null; criado_em: string };
+type Movimentacao = { id: string; tipo: "entrada" | "saida" | "ajuste"; quantidade: number; estoque_depois: number; valor_total: number | null; observacao: string | null; criado_em: string; feita_por: string | null; agendamento_id: string | null };
 
 const TIPO = { entrada: "Entrada", saida: "Saída", ajuste: "Contagem" };
 
@@ -46,12 +46,14 @@ export default async function ProdutoEstoque({ params, searchParams }: PageProps
   const { id } = await params;
   const { ok, erro } = await searchParams;
   const { supabase } = await exigirEquipe();
-  const [{ data }, { data: historico }, { data: fornecedores }] = await Promise.all([
+  const [{ data }, { data: historico }, { data: fornecedores }, { data: equipe }] = await Promise.all([
     supabase.from("produtos").select("*").eq("id", id).maybeSingle(),
-    supabase.from("movimentacoes_estoque").select("id, tipo, quantidade, estoque_depois, valor_total, observacao, criado_em").eq("produto_id", id).order("criado_em", { ascending: false }).limit(50),
+    supabase.from("movimentacoes_estoque").select("id, tipo, quantidade, estoque_depois, valor_total, observacao, criado_em, feita_por, agendamento_id").eq("produto_id", id).order("criado_em", { ascending: false }).limit(50),
     supabase.from("fornecedores").select("id, nome").eq("ativo", true).order("nome"),
+    supabase.from("funcionarias").select("usuario_id, nome").not("usuario_id", "is", null),
   ]);
   if (!data) notFound();
+  const nomes = new Map((equipe ?? []).map((f) => [f.usuario_id, f.nome]));
   const p = { ...(data as Produto), estoque_atual: Number(data.estoque_atual), estoque_minimo: Number(data.estoque_minimo), tamanho_embalagem: Number(data.tamanho_embalagem) };
   const baixo = estoqueBaixo(p);
   const embalagens = emEmbalagens(p.estoque_atual, p.tamanho_embalagem, p.unidade);
@@ -95,6 +97,7 @@ export default async function ProdutoEstoque({ params, searchParams }: PageProps
                 <th className="px-5 py-3 font-medium">Quando</th>
                 <th className="px-5 py-3 font-medium">Movimento</th>
                 <th className="px-5 py-3 font-medium">Ficou</th>
+                <th className="px-5 py-3 font-medium">Quem</th>
                 <th className="px-5 py-3 font-medium">Observação</th>
               </tr>
             </thead>
@@ -112,13 +115,17 @@ export default async function ProdutoEstoque({ params, searchParams }: PageProps
                       {m.valor_total != null && <span className="text-terra/60"> · {reais(Number(m.valor_total))}</span>}
                     </td>
                     <td className="px-5 py-3">{formatarQuantidade(Number(m.estoque_depois), p.unidade)}</td>
+                    <td className="px-5 py-3">
+                      {nomes.get(m.feita_por) ?? "—"}
+                      {m.agendamento_id && <span className="block text-xs text-terra/60">baixa automática</span>}
+                    </td>
                     <td className="px-5 py-3 text-terra/70">{m.observacao}</td>
                   </tr>
                 );
               })}
               {historico?.length === 0 && (
                 <tr>
-                  <td colSpan={4} className="px-5 py-4 text-terra/70">Nenhuma movimentação ainda.</td>
+                  <td colSpan={5} className="px-5 py-4 text-terra/70">Nenhuma movimentação ainda.</td>
                 </tr>
               )}
             </tbody>

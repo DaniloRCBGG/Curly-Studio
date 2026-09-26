@@ -10,7 +10,7 @@ Escopo completo em `planejamento/curly-studio-brief.md` (pasta do projeto no Cla
 - **Sinal por Pix obrigatório:** ao escolher o horário, o site gera um QR code Pix. O horário fica reservado por 15 minutos e o agendamento só é confirmado quando o Pix cai (webhook do Asaas). Se o tempo acabar, o horário volta a ficar livre.
 - **Minha conta:** próximos horários, pagar sinal pendente, remarcar, cancelar, editar dados.
 - **Painel da equipe (`/equipe`):** agenda do dia, cadastro de cliente na chegada, agendamento no balcão (sinal recebido no salão), serviços e valores. A gerente também cadastra a equipe e cria os logins.
-- **Estoque (`/equipe/estoque`):** produtos medidos em ml, g ou unidades, com entrada por embalagem, saída, contagem e histórico. Aviso de estoque baixo no menu quando o produto chega ao mínimo (10% do estoque atual, arredondado para cima, ou valor definido à mão). Fornecedores com link para WhatsApp. A baixa automática por atendimento entra junto com o registro de atendimento.
+- **Estoque (`/equipe/estoque`):** produtos medidos em ml, g ou unidades, com entrada por embalagem, saída, contagem e histórico. Aviso de estoque baixo no menu quando o produto chega ao mínimo (10% do estoque atual, arredondado para cima, ou valor definido à mão). Fornecedores com link para WhatsApp. Em **Consumo por serviço** a equipe informa quanto cada serviço gasta de cada produto por tamanho de cabelo (P/M/G/GG); ao concluir o atendimento na agenda, o estoque baixa sozinho. O botão "?" ao lado do título abre o guia de uso.
 
 Textos do site ficam em `src/conteudo/salao.ts`; tudo marcado com `[PREENCHER]` precisa do conteúdo real.
 

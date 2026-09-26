@@ -111,3 +111,34 @@ export async function salvarFornecedor(form: FormData) {
   revalidatePath("/equipe/estoque", "layout");
   redirect("/equipe/estoque/fornecedores?ok=1");
 }
+
+// Consumo por serviço (RF11, RF12): quanto cada serviço gasta de cada produto, por tamanho de cabelo.
+
+const TAMANHOS = ["P", "M", "G", "GG"] as const;
+
+export async function salvarConsumo(form: FormData) {
+  const { supabase } = await exigirEquipe();
+  const servicoId = texto(form, "servico_id");
+
+  // Campos "q|<produto>|<tamanho>" dos produtos já ligados e "novo|<tamanho>" do produto adicionado.
+  const novoProduto = texto(form, "novo_produto");
+  const linhas: { servico_id: string; produto_id: string; tamanho: string; quantidade: number }[] = [];
+  for (const [chave, valor] of form.entries()) {
+    const partes = chave.split("|");
+    const produto = partes[0] === "q" ? partes[1] : partes[0] === "novo" ? novoProduto : null;
+    const tamanho = partes[partes.length - 1];
+    if (!produto || !TAMANHOS.includes(tamanho as (typeof TAMANHOS)[number])) continue;
+    const quantidade = lerNumero(String(valor));
+    if (quantidade === null) continue;
+    if (quantidade < 0) redirect(comErro(`/equipe/estoque/consumo`, "Use só números positivos.") + `#s-${servicoId}`);
+    if (quantidade > 0) linhas.push({ servico_id: servicoId, produto_id: produto, tamanho, quantidade });
+  }
+  // O mesmo produto escolhido de novo em "adicionar" substitui a linha que já existia.
+  const unicas = [...new Map(linhas.map((l) => [`${l.produto_id}|${l.tamanho}`, l])).values()];
+
+  let { error } = await supabase.from("consumo_servico").delete().eq("servico_id", servicoId);
+  if (!error && unicas.length) ({ error } = await supabase.from("consumo_servico").insert(unicas));
+  if (error) redirect(comErro("/equipe/estoque/consumo", "Não foi possível salvar o consumo.") + `#s-${servicoId}`);
+  revalidatePath("/equipe/estoque/consumo");
+  redirect(`/equipe/estoque/consumo?ok=${servicoId}#s-${servicoId}`);
+}
