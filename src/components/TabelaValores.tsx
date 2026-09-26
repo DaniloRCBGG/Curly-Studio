@@ -126,7 +126,7 @@ export function TabelaValores() {
 
       <div className="mt-16 flex flex-wrap items-center gap-4 rounded-2xl bg-terra p-8 text-areia">
         <p className="titulo mr-auto text-3xl text-areia-clara">vamos cuidar dos seus cachos?</p>
-        <Link href="/agendar" className="botao bg-folha hover:bg-areia hover:text-terra">
+        <Link href="/agendar" className="botao-no-escuro">
           Agendar horário
         </Link>
       </div>

@@ -36,6 +36,15 @@ body {
   @apply inline-flex items-center justify-center rounded-full bg-folha-escura px-6 py-3 font-medium text-areia-clara transition hover:bg-terra focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-folha-escura disabled:opacity-50;
 }
 
+/* Botões sobre fundos marrons (topo da home e faixas de chamada): no hover viram pastel com texto verde,
+   em vez de escurecer para marrom e sumir no fundo. */
+.botao-no-escuro {
+  @apply inline-flex items-center justify-center rounded-full bg-folha-escura px-6 py-3 font-medium text-areia-clara transition-colors duration-300 hover:bg-areia hover:text-folha-escura focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-areia;
+}
+.botao-no-escuro-secundario {
+  @apply inline-flex items-center justify-center rounded-full border border-areia/30 bg-areia/15 px-6 py-3 font-medium text-areia-clara transition-colors duration-300 hover:border-areia hover:bg-areia hover:text-folha-escura focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-areia;
+}
+
 .botao-secundario {
   @apply inline-flex items-center justify-center rounded-full border border-terra/30 px-6 py-3 font-medium text-terra transition hover:border-terra hover:bg-areia;
 }

@@ -131,10 +131,10 @@ export function Hero() {
               animate={pronta ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.9, delay: 0.6 + palavras.length * 0.09, ease: suave }}
             >
-              <Link href="/agendar" className="botao bg-folha hover:bg-areia hover:text-terra">
+              <Link href="/agendar" className="botao-no-escuro">
                 Agendar horário
               </Link>
-              <Link href="/servicos" className="inline-flex items-center rounded-full border border-areia/40 px-6 py-3 font-medium hover:border-areia">
+              <Link href="/servicos" className="botao-no-escuro-secundario">
                 Ver serviços
               </Link>
             </motion.div>
