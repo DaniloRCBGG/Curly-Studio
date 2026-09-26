@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import { TabelaValores } from "@/components/TabelaValores";
+import { listarServicos } from "@/lib/servicos";
 
 export const metadata: Metadata = { title: "Valores", description: "Tabela de valores de cortes, tratamentos, coloração e produtos do Carol Rios Curly Studio." };
 
-export default function Valores() {
+export default async function Valores() {
+  const servicos = await listarServicos();
   return (
     <div className="mx-auto max-w-6xl px-4 pt-16 pb-20 sm:px-6">
       <h1 className="text-center">
@@ -14,7 +16,7 @@ export default function Valores() {
         Os preços variam pelo tamanho do cabelo. Escolha o seu em “Meu cabelo” para ver só o que vale para você.
       </p>
       <div className="mt-10">
-        <TabelaValores />
+        <TabelaValores servicos={servicos} />
       </div>
     </div>
   );

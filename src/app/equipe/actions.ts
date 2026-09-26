@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { exigirEquipe, exigirGerente } from "@/lib/auth/sessao";
+import { CAMPOS_SERVICO, ehTamanho, precoPara, precosPorTamanho, type Servico, type Tamanho } from "@/lib/servicos";
 import { criarClienteAdmin } from "@/lib/supabase/admin";
 import { cpfValido, soDigitos } from "@/lib/validacao";
 
@@ -32,7 +33,8 @@ export async function agendarPelaEquipe(form: FormData) {
   const clienteId = texto(form, "cliente");
   const data = texto(form, "data");
   const inicio = texto(form, "inicio");
-  const voltar = `/equipe/novo?cliente=${clienteId}&servico=${servicoId}&data=${data}`;
+  const tamanho = ehTamanho(texto(form, "tamanho")) ? (texto(form, "tamanho") as Tamanho) : null;
+  const voltar = `/equipe/novo?cliente=${clienteId}&servico=${servicoId}${tamanho ? `&tamanho=${tamanho}` : ""}&data=${data}`;
 
   const { disponibilidade } = await import("@/lib/agenda/disponibilidade");
   const { livres } = await disponibilidade(servicoId, data);
@@ -41,11 +43,14 @@ export async function agendarPelaEquipe(form: FormData) {
   const funcionaria = horario && (pedida && pedida !== "qualquer" ? (horario.funcionarias.includes(pedida) ? pedida : null) : horario.funcionarias[0]);
   if (!funcionaria) redirect(`${voltar}&erro=${encodeURIComponent("Horário não está mais livre.")}`);
 
-  const { data: servico } = await supabase.from("servicos").select("duracao_minutos, valor, valor_sinal").eq("id", servicoId).single();
+  const { data: servico } = await supabase.from("servicos").select(CAMPOS_SERVICO).eq("id", servicoId).single();
+  const porTamanho = servico ? precosPorTamanho(servico as Servico) !== null : false;
+  if (porTamanho && !tamanho) redirect(`${voltar}&erro=${encodeURIComponent("Escolha o tamanho do cabelo.")}`);
+  const valor = Number(precoPara(servico as Servico, porTamanho ? tamanho : null));
   const fim = new Date(new Date(inicio).getTime() + servico!.duracao_minutos * 60_000).toISOString();
   const { data: ag, error } = await supabase
     .from("agendamentos")
-    .insert({ cliente_id: clienteId, funcionaria_id: funcionaria, servico_id: servicoId, inicio, fim, status: "agendado", valor: servico!.valor, criado_por: user.id })
+    .insert({ cliente_id: clienteId, funcionaria_id: funcionaria, servico_id: servicoId, inicio, fim, status: "agendado", valor, tamanho: porTamanho ? tamanho : null, criado_por: user.id })
     .select("id")
     .single();
   if (error || !ag) redirect(`${voltar}&erro=${encodeURIComponent("Não foi possível agendar: horário ocupado.")}`);
@@ -81,11 +86,21 @@ export async function cadastrarCliente(form: FormData) {
 export async function salvarServico(form: FormData) {
   const { supabase } = await exigirEquipe();
   const id = texto(form, "id");
+  // Preço por tamanho (os quatro) ou preço único; com tamanhos, o preço base passa a ser o do cabelo P.
+  const precos = { preco_p: numero(form, "preco_p"), preco_m: numero(form, "preco_m"), preco_g: numero(form, "preco_g"), preco_gg: numero(form, "preco_gg") };
+  const preenchidos = Object.values(precos).filter((v) => v !== null).length;
+  if (preenchidos !== 0 && preenchidos !== 4) redirect(`/equipe/servicos?erro=${encodeURIComponent("Preencha o preço dos quatro tamanhos, ou deixe todos vazios e use o preço único.")}`);
+  const valor = preenchidos === 4 ? precos.preco_p : numero(form, "valor");
+  if (valor === null) redirect(`/equipe/servicos?erro=${encodeURIComponent("Informe o preço por tamanho ou o preço único.")}`);
   const registro = {
     nome: texto(form, "nome"),
     descricao: texto(form, "descricao") || null,
+    grupo: texto(form, "grupo") || "cuidados",
     duracao_minutos: numero(form, "duracao_minutos"),
-    valor: numero(form, "valor"),
+    valor,
+    ...precos,
+    a_partir_de: form.get("a_partir_de") === "on",
+    observacoes: texto(form, "observacoes") || null,
     valor_sinal: numero(form, "valor_sinal"),
     ordem: numero(form, "ordem") ?? 0,
     ativo: form.get("ativo") === "on",

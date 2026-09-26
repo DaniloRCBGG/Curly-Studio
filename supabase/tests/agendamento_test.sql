@@ -70,5 +70,37 @@ exception when others then
   assert sqlerrm = 'agendamento_nao_cancelavel', 'erro inesperado: ' || sqlerrm;
 end $$;
 
+-- Preço por tamanho: o tamanho é obrigatório e define o valor do agendamento.
+insert into public.servicos (id, nome, grupo, duracao_minutos, valor, preco_p, preco_m, preco_g, preco_gg, valor_sinal)
+  values ('00000000-0000-0000-0000-0000000000c2', 'Tratamento', 'cuidados', 60, 170, 170, 180, 190, 210, 50);
+insert into public.funcionaria_servicos values ('00000000-0000-0000-0000-0000000000d1', '00000000-0000-0000-0000-0000000000c2');
+do $$ begin
+  perform public.reservar_horario('00000000-0000-0000-0000-0000000000c2', '00000000-0000-0000-0000-0000000000d1', date_trunc('day', now()) + interval '2 days 10 hours');
+  raise exception 'deveria exigir o tamanho';
+exception when others then
+  assert sqlerrm = 'tamanho_obrigatorio', 'erro inesperado: ' || sqlerrm;
+end $$;
+do $$
+declare v_id uuid;
+begin
+  v_id := public.reservar_horario('00000000-0000-0000-0000-0000000000c2', '00000000-0000-0000-0000-0000000000d1', date_trunc('day', now()) + interval '2 days 10 hours', 15, 'G');
+  assert (select valor from public.agendamentos where id = v_id) = 190, 'valor do cabelo G deveria ser 190';
+  assert (select tamanho from public.agendamentos where id = v_id) = 'G';
+end $$;
+-- Serviço com preço único ignora o tamanho.
+do $$
+declare v_id uuid;
+begin
+  v_id := public.reservar_horario('00000000-0000-0000-0000-0000000000c1', '00000000-0000-0000-0000-0000000000d1', date_trunc('day', now()) + interval '2 days 15 hours', 15, 'GG');
+  assert (select valor from public.agendamentos where id = v_id) = 150;
+  assert (select tamanho from public.agendamentos where id = v_id) is null;
+end $$;
+-- Os quatro preços vêm juntos ou nenhum.
+do $$ begin
+  insert into public.servicos (nome, duracao_minutos, valor, preco_p, valor_sinal) values ('Incompleto', 60, 100, 100, 20);
+  raise exception 'deveria recusar preço por tamanho incompleto';
+exception when check_violation then null;
+end $$;
+
 \echo TODOS_OS_TESTES_PASSARAM
 rollback;

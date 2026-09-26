@@ -2,7 +2,7 @@ import Link from "next/link";
 import { SeletorHorario } from "@/components/SeletorHorario";
 import { disponibilidade, diasDeFuncionamento } from "@/lib/agenda/disponibilidade";
 import { exigirEquipe } from "@/lib/auth/sessao";
-import { listarServicos, reais } from "@/lib/servicos";
+import { TAMANHOS, ehTamanho, listarServicos, precoPara, precosPorTamanho, reais } from "@/lib/servicos";
 import { agendarPelaEquipe } from "../actions";
 
 // Agendamento pela equipe: cliente → serviço → horário. O sinal é registrado como recebido no salão.
@@ -31,7 +31,10 @@ export default async function NovoAgendamento({ searchParams }: PageProps<"/equi
 
   const servicos = await listarServicos();
   const servico = servicos.find((s) => s.id === servicoId);
+  const porTamanho = servico ? precosPorTamanho(servico) !== null : false;
+  const tamanho = porTamanho && ehTamanho(p.tamanho) ? p.tamanho : null;
   const base = `/equipe/novo?cliente=${cliente.id}`;
+  const baseServico = servico ? `${base}&servico=${servico.id}${tamanho ? `&tamanho=${tamanho}` : ""}` : base;
   const [dias, disp] = servico ? await Promise.all([diasDeFuncionamento(), data ? disponibilidade(servico.id, data) : null]) : [[], null];
 
   return (
@@ -49,17 +52,35 @@ export default async function NovoAgendamento({ searchParams }: PageProps<"/equi
           </Link>
         ))}
       </div>
-      {servico && (
+      {servico && porTamanho && (
+        <div className="space-y-2">
+          <p className="rotulo">Tamanho do cabelo</p>
+          <div className="flex flex-wrap gap-2">
+            {TAMANHOS.map((t) => (
+              <Link
+                key={t}
+                href={`${base}&servico=${servico.id}&tamanho=${t}${data ? `&data=${data}` : ""}`}
+                className={`rounded-full border px-4 py-2 text-sm ${t === tamanho ? "border-folha-escura bg-folha-escura text-areia-clara" : "border-terra/20 bg-white"}`}
+              >
+                {t} · {reais(precoPara(servico, t))}
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
+      {servico && (!porTamanho || tamanho) && (
         <>
-          <p className="text-sm text-terra/75">O sinal de {reais(servico.valor_sinal)} fica registrado como recebido no salão.</p>
+          <p className="text-sm text-terra/85">
+            {reais(precoPara(servico, tamanho))}. O sinal de {reais(servico.valor_sinal)} fica registrado como recebido no salão.
+          </p>
           <SeletorHorario
-            hrefDia={(d) => `${base}&servico=${servico.id}&data=${d}`}
+            hrefDia={(d) => `${baseServico}&data=${d}`}
             diasAbertos={dias}
             dataSelecionada={data}
             livres={disp?.livres ?? []}
             profissionais={disp?.profissionais ?? []}
             acao={agendarPelaEquipe}
-            camposOcultos={{ cliente: cliente.id, servico: servico.id }}
+            camposOcultos={tamanho ? { cliente: cliente.id, servico: servico.id, tamanho } : { cliente: cliente.id, servico: servico.id }}
             textoBotao="Agendar"
           />
         </>

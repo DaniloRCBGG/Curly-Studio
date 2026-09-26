@@ -1,8 +1,24 @@
 import { exigirEquipe } from "@/lib/auth/sessao";
-import { duracao, reais } from "@/lib/servicos";
+import { GRUPOS, TAMANHOS, duracao, precosPorTamanho, reais } from "@/lib/servicos";
 import { salvarServico } from "../actions";
 
-type Servico = { id: string; nome: string; descricao: string | null; duracao_minutos: number; valor: number; valor_sinal: number; ativo: boolean; ordem: number };
+type Servico = {
+  id: string;
+  nome: string;
+  descricao: string | null;
+  grupo: string;
+  duracao_minutos: number;
+  valor: number;
+  valor_sinal: number;
+  preco_p: number | null;
+  preco_m: number | null;
+  preco_g: number | null;
+  preco_gg: number | null;
+  a_partir_de: boolean;
+  observacoes: string | null;
+  ativo: boolean;
+  ordem: number;
+};
 
 function FormServico({ servico, profissionais, vinculadas, podeVincular }: { servico?: Servico; profissionais: { id: string; nome: string }[]; vinculadas: string[]; podeVincular: boolean }) {
   return (
@@ -16,17 +32,50 @@ function FormServico({ servico, profissionais, vinculadas, podeVincular }: { ser
         <label className="rotulo">Duração (min)</label>
         <input className="campo" name="duracao_minutos" type="number" min={15} step={15} defaultValue={servico?.duracao_minutos ?? 60} required />
       </div>
+      <div className="sm:col-span-2">
+        <label className="rotulo">Grupo (na aba Valores)</label>
+        <select className="campo" name="grupo" defaultValue={servico?.grupo ?? "cuidados"}>
+          {GRUPOS.map((g) => (
+            <option key={g.id} value={g.id}>
+              {g.titulo}
+            </option>
+          ))}
+        </select>
+      </div>
+      <fieldset className="sm:col-span-4">
+        <legend className="rotulo">Preço por tamanho de cabelo (R$)</legend>
+        <div className="grid grid-cols-4 gap-2">
+          {TAMANHOS.map((t) => {
+            const campo = `preco_${t.toLowerCase()}` as "preco_p" | "preco_m" | "preco_g" | "preco_gg";
+            return (
+              <label key={t} className="text-sm">
+                <span className="mb-1 block font-medium">{t}</span>
+                <input className="campo" name={campo} inputMode="decimal" defaultValue={servico?.[campo] ?? ""} />
+              </label>
+            );
+          })}
+        </div>
+        <p className="mt-1 text-xs text-terra/85">Preencha os quatro, ou deixe todos vazios e use o preço único.</p>
+      </fieldset>
       <div>
-        <label className="rotulo">Valor (R$)</label>
-        <input className="campo" name="valor" inputMode="decimal" defaultValue={servico?.valor} required />
+        <label className="rotulo">Preço único (R$)</label>
+        <input className="campo" name="valor" inputMode="decimal" defaultValue={servico && !precosPorTamanho(servico) ? servico.valor : ""} />
       </div>
       <div>
         <label className="rotulo">Sinal (R$)</label>
         <input className="campo" name="valor_sinal" inputMode="decimal" defaultValue={servico?.valor_sinal} required />
       </div>
+      <label className="flex items-center gap-2 self-end pb-3 text-sm sm:col-span-4">
+        <input type="checkbox" name="a_partir_de" defaultChecked={servico?.a_partir_de ?? false} className="accent-folha-escura" />
+        Mostrar “a partir de” (o valor pode variar)
+      </label>
       <div className="sm:col-span-5">
         <label className="rotulo">Descrição (aparece no site)</label>
         <input className="campo" name="descricao" defaultValue={servico?.descricao ?? ""} />
+      </div>
+      <div className="sm:col-span-6">
+        <label className="rotulo">Observações (uma por linha, aparecem na aba Valores)</label>
+        <textarea className="campo" name="observacoes" rows={2} defaultValue={servico?.observacoes ?? ""} />
       </div>
       <div>
         <label className="rotulo">Ordem</label>
@@ -62,7 +111,7 @@ export default async function Servicos({ searchParams }: PageProps<"/equipe/serv
   const { erro, ok } = await searchParams;
   const { supabase, perfil } = await exigirEquipe();
   const [{ data: servicos }, { data: profissionais }, { data: vinculos }] = await Promise.all([
-    supabase.from("servicos").select("id, nome, descricao, duracao_minutos, valor, valor_sinal, ativo, ordem").order("ordem").order("nome"),
+    supabase.from("servicos").select("id, nome, descricao, grupo, duracao_minutos, valor, valor_sinal, preco_p, preco_m, preco_g, preco_gg, a_partir_de, observacoes, ativo, ordem").order("ordem").order("nome"),
     supabase.from("funcionarias").select("id, nome").eq("ativa", true).eq("atende", true).order("nome"),
     supabase.from("funcionaria_servicos").select("funcionaria_id, servico_id"),
   ]);
@@ -82,7 +131,8 @@ export default async function Servicos({ searchParams }: PageProps<"/equipe/serv
           <summary className="cursor-pointer">
             <span className="font-medium">{s.nome}</span>
             <span className="ml-2 text-sm text-terra/70">
-              {duracao(s.duracao_minutos)} · {reais(Number(s.valor))} · sinal {reais(Number(s.valor_sinal))}
+              {GRUPOS.find((g) => g.id === s.grupo)?.titulo} · {duracao(s.duracao_minutos)} ·{" "}
+              {precosPorTamanho(s) ? `P ${reais(Number(s.preco_p))} a GG ${reais(Number(s.preco_gg))}` : reais(Number(s.valor))} · sinal {reais(Number(s.valor_sinal))}
               {!s.ativo && " · inativo"}
             </span>
           </summary>
