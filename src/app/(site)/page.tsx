@@ -47,6 +47,18 @@ export default async function Inicio() {
         <Revelar atraso={0.15} className="mt-8">
           <ListaServicos servicos={servicos} />
         </Revelar>
+        {/* Para quem só quer saber quanto custa, sem simular um agendamento. */}
+        <Revelar atraso={0.2} className="mt-10 flex flex-col items-start gap-5 rounded-3xl bg-areia p-8 sm:flex-row sm:items-center sm:justify-between">
+          <div className="max-w-xl">
+            <h3 className="titulo text-3xl">quer saber quanto custa?</h3>
+            <p className="mt-2 text-terra/85">
+              Não precisa simular um agendamento. Na nossa tabela você vê o valor de cada serviço pelo tamanho do seu cabelo, e os produtos que vendemos no salão.
+            </p>
+          </div>
+          <Link href="/valores" className="botao shrink-0">
+            Ver nossos valores
+          </Link>
+        </Revelar>
       </section>
 
       <div className="bg-areia-clara">

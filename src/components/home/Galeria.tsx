@@ -1,12 +1,32 @@
 "use client";
 
 import { motion } from "motion/react";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { midia } from "@/conteudo/midia";
 
 // Galeria que se arrasta para o lado. Sem fotos cadastradas, mostra espaços reservados.
 export function Galeria() {
   const trilho = useRef<HTMLDivElement>(null);
+  const faixa = useRef<HTMLDivElement>(null);
+  // Limites do arraste em pixels: de 0 (primeira foto no lugar de sempre) até a última foto encostar
+  // na margem direita. Usar o próprio trilho como limite prendia a faixa sem a margem da esquerda.
+  const [limite, setLimite] = useState(0);
+
+  useEffect(() => {
+    const t = trilho.current;
+    const f = faixa.current;
+    if (!t || !f) return;
+    const medir = () => {
+      const estilo = getComputedStyle(t);
+      const util = t.clientWidth - parseFloat(estilo.paddingLeft) - parseFloat(estilo.paddingRight);
+      setLimite(Math.min(0, util - f.scrollWidth));
+    };
+    medir();
+    const obs = new ResizeObserver(medir);
+    obs.observe(t);
+    obs.observe(f);
+    return () => obs.disconnect();
+  }, []);
   const fotos = midia.galeria.length ? midia.galeria : Array.from({ length: 6 }, (_, i) => ({ src: "", alt: `Foto ${i + 1}` }));
 
   return (
@@ -16,7 +36,7 @@ export function Galeria() {
         <p className="hidden text-sm text-terra/60 sm:block">Arraste para o lado</p>
       </div>
       <div ref={trilho} className="mt-10 cursor-grab px-4 active:cursor-grabbing sm:px-[max(1.5rem,calc((100vw-72rem)/2+1.5rem))]">
-        <motion.div className="flex w-max gap-4" drag="x" dragConstraints={trilho} dragElastic={0.08}>
+        <motion.div ref={faixa} className="flex w-max gap-4" drag="x" dragConstraints={{ left: limite, right: 0 }} dragElastic={0.08}>
           {fotos.map((f, i) => (
             <motion.figure
               key={i}
