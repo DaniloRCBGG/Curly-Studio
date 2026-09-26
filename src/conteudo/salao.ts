@@ -15,8 +15,8 @@ export const salao = {
     { titulo: "Natural", texto: "Produtos e técnicas que respeitam a saúde do fio." },
   ],
   contato: {
-    whatsapp: "[PREENCHER] (21) 90000-0000",
-    whatsappLink: "https://wa.me/5521900000000", // [PREENCHER]
+    whatsapp: "(21) 96466-1738",
+    whatsappLink: "https://api.whatsapp.com/send?phone=5521964661738",
     instagram: "@carolrioscurlystudio", // [PREENCHER]
     instagramLink: "https://instagram.com/carolrioscurlystudio", // [PREENCHER]
     email: "[PREENCHER]",
