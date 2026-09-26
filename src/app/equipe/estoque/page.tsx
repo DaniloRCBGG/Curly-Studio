@@ -3,6 +3,7 @@ import { exigirEquipe } from "@/lib/auth/sessao";
 import { emEmbalagens, estoqueBaixo, formatarQuantidade, type Produto } from "@/lib/estoque";
 import { salvarProduto } from "./actions";
 import { AjudaEstoque } from "./AjudaEstoque";
+import { GuiaEstoque } from "./GuiaEstoque";
 import { CamposProduto } from "./CamposProduto";
 
 // Estoque de produtos (RF08–RF14, RN08): funcionárias e gerente.
@@ -29,7 +30,9 @@ export default async function Estoque({ searchParams }: PageProps<"/equipe/estoq
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div className="flex items-center gap-3">
           <h1 className="titulo text-4xl">estoque</h1>
-          <AjudaEstoque />
+          <AjudaEstoque>
+            <GuiaEstoque />
+          </AjudaEstoque>
         </div>
         <div className="flex flex-wrap gap-2">
           <Link href="/equipe/estoque/consumo" className="botao-secundario py-2 text-sm">

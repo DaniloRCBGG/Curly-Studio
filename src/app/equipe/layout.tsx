@@ -2,7 +2,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { exigirEquipe } from "@/lib/auth/sessao";
 
-export const metadata = { title: "Painel da equipe" };
+// Área interna: fora dos buscadores.
+export const metadata = { title: "Painel da equipe", robots: { index: false, follow: false } };
 
 export default async function LayoutEquipe({ children }: LayoutProps<"/equipe">) {
   const { perfil, supabase } = await exigirEquipe();
