@@ -1,6 +1,6 @@
 // Fotos do site, em public/midia/ (otimizadas em .webp).
 export const midia = {
-  // Vídeo do topo da home (gerado das fotos carol-15/16/17 por scripts/gerar-video-topo.py):
+  // Vídeo do topo da home (gerado das fotos carol-15 e carol-17 por scripts/gerar-video-topo.py):
   // toca uma vez e para no último quadro, com a Carol ao lado da logo. Sem vídeo, o topo mostra só a logo.
   topo: {
     video: { mp4: "/midia/topo/topo.mp4", webm: "/midia/topo/topo.webm" } as { mp4: string; webm: string } | null,

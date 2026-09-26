@@ -1,7 +1,8 @@
-"""Gera o vídeo do topo da home a partir das 3 fotos em public/midia/topo/.
+"""Gera o vídeo do topo da home a partir das fotos carol-15 e carol-17 em public/midia/topo/.
 
-Uma "câmera" virtual faz um zoom lento e contínuo; em cada foto o rosto da Carol é
-alinhado no mesmo ponto do quadro, então as fusões longas parecem um único movimento.
+A carol-17 é alinhada uma única vez sobre a carol-15 (rosto e cabelo no mesmo lugar), e uma
+câmera só faz um zoom lento em torno do rosto, igual para as duas fotos. Assim não há
+deslocamento para os lados: a imagem só se aproxima, antes, durante e depois da fusão.
 
 Requer: pip install pillow numpy imageio-ffmpeg
 Uso:    python3 scripts/gerar-video-topo.py
@@ -18,62 +19,55 @@ RAIZ = Path(__file__).resolve().parent.parent
 PASTA = RAIZ / "public/midia/topo"
 L, A, FPS = 720, 1080, 30
 
-# Ordem das fotos e referência do rosto em cada uma (em px da foto de 1100x1650):
-# centro do cabelo no eixo x, linha dos olhos no eixo y e largura do cabelo.
-FOTOS = [
-    ("carol-15.webp", 680, 510, 500),  # de perfil, rindo
-    ("carol-17.webp", 670, 528, 580),  # virando, sorrindo
-    ("carol-16.webp", 660, 470, 740),  # olhando para a câmera (quadro final)
-]
-# Linha do tempo em segundos: início de cada fusão e sua duração.
-FUSOES = [(1.7, 1.3), (3.9, 1.4)]
-DURACAO = 6.8
-# Câmera: largura do cabelo no quadro e posição dos olhos, do início ao fim.
-CAB_INI, CAB_FIM = 390, 500
-POS_INI, POS_FIM = (440, 385), (440, 318)
+# Alinhamento da carol-17 sobre a carol-15 (medido pelo cabelo/rosto): p15 = ESCALA * p17 + DESLOC.
+ESCALA, DESLOC = 1.015, (-4.0, 16.0)
+# Janela inicial da câmera, em px da carol-15 (2:3, dentro das duas fotos alinhadas),
+# e ponto fixo do zoom (rosto): ele fica parado no quadro enquanto a imagem se aproxima.
+JANELA = (6.0, 16.0, 1094.0, 1648.0)
+FOCO = (680.0, 480.0)
+ZOOM_FIM = 1.12
+DURACAO = 5.6
+FUSAO = (1.9, 1.6)  # início e duração da passagem da 15 para a 17
 
 
-def suave(t):  # entra e sai devagar
-    t = min(max(t, 0.0), 1.0)
-    return 0.5 - 0.5 * math.cos(math.pi * t)
+def zoom(t):
+    # Quase constante, com início e fim macios (70% linear + 30% seno).
+    x = min(max(t / DURACAO, 0.0), 1.0)
+    k = 0.7 * x + 0.3 * (0.5 - 0.5 * math.cos(math.pi * x))
+    return 1 + (ZOOM_FIM - 1) * k
 
 
-def quadro(img, cx, cy, larg, t, desfoque=0.0):
-    k = suave(t / DURACAO)
-    cab = CAB_INI + (CAB_FIM - CAB_INI) * k
-    px = POS_INI[0] + (POS_FIM[0] - POS_INI[0]) * k
-    py = POS_INI[1] + (POS_FIM[1] - POS_INI[1]) * k
-    w, h = img.size
-    s = max(cab / larg, L / w, A / h)  # px do vídeo por px da foto, sempre cobrindo o quadro
-    x0 = min(max(cx - px / s, 0), w - L / s)
-    y0 = min(max(cy - py / s, 0), h - A / s)
-    caixa = (x0, y0, x0 + L / s, y0 + A / s)
+def janela(t):
+    z = zoom(t)
+    fx, fy = FOCO
+    x0, y0, x1, y1 = JANELA
+    return (fx + (x0 - fx) / z, fy + (y0 - fy) / z, fx + (x1 - fx) / z, fy + (y1 - fy) / z)
+
+
+def recorte(img, caixa, desfoque):
     q = img.resize((L, A), Image.LANCZOS, box=caixa)
     if desfoque > 0.3:
         q = q.filter(ImageFilter.GaussianBlur(desfoque))
-    return np.asarray(q, dtype=np.float32)
-
-
-def peso(t, ini, dur):
-    x = min(max((t - ini) / dur, 0.0), 1.0)
-    return x * x * x * (x * (6 * x - 15) + 10)  # smootherstep
+    return np.asarray(q, dtype=np.float32) ** 2.2  # mistura em luz linear
 
 
 def main():
-    fotos = [(Image.open(PASTA / f).convert("RGB"), cx, cy, lg) for f, cx, cy, lg in FOTOS]
-    total = round(DURACAO * FPS)
+    f15 = Image.open(PASTA / "carol-15.webp").convert("RGB")
+    f17 = Image.open(PASTA / "carol-17.webp").convert("RGB")
+    dx, dy = DESLOC
     quadros = []
-    for n in range(total):
+    for n in range(round(DURACAO * FPS)):
         t = n / FPS
-        pesos, desfoque = [1.0], 0.0
-        for ini, dur in FUSOES:
-            a = peso(t, ini, dur)
-            pesos = [p * (1 - a) for p in pesos] + [a]
-            desfoque = max(desfoque, 3.0 * math.sin(math.pi * a))  # leve desfoque no meio da fusão
+        x = min(max((t - FUSAO[0]) / FUSAO[1], 0.0), 1.0)
+        a = x * x * x * (x * (6 * x - 15) + 10)  # smootherstep
+        desfoque = 2.0 * math.sin(math.pi * a)  # leve, só no meio da fusão
+        c = janela(t)
+        c17 = ((c[0] - dx) / ESCALA, (c[1] - dy) / ESCALA, (c[2] - dx) / ESCALA, (c[3] - dy) / ESCALA)
         acc = np.zeros((A, L, 3), np.float32)
-        for (img, cx, cy, lg), p in zip(fotos, pesos):
-            if p > 1e-4:
-                acc += p * quadro(img, cx, cy, lg, t, desfoque) ** 2.2  # mistura em luz linear
+        if a < 1:
+            acc += (1 - a) * recorte(f15, c, desfoque)
+        if a > 0:
+            acc += a * recorte(f17, c17, desfoque)
         quadros.append(np.clip(acc ** (1 / 2.2), 0, 255).astype(np.uint8))
 
     ff = imageio_ffmpeg.get_ffmpeg_exe()
