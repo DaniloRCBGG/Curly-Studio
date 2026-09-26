@@ -6,7 +6,7 @@ Escopo completo em `planejamento/curly-studio-brief.md` (pasta do projeto no Cla
 ## O que tem na fase 1
 
 - **Site:** início, quem somos, serviços (vêm do cadastro), contato com mapa, política de privacidade.
-- **Cliente:** cria conta (com CPF, exigido pelo Pix), escolhe serviço, dia, horário e profissional.
+- **Cliente:** cria conta com e-mail e senha ou pelo Google (com CPF, exigido pelo Pix), escolhe serviço, dia, horário e profissional.
 - **Sinal por Pix obrigatório:** ao escolher o horário, o site gera um QR code Pix. O horário fica reservado por 15 minutos e o agendamento só é confirmado quando o Pix cai (webhook do Asaas). Se o tempo acabar, o horário volta a ficar livre.
 - **Minha conta:** próximos horários, pagar sinal pendente, remarcar, cancelar, editar dados.
 - **Painel da equipe (`/equipe`):** agenda do dia, cadastro de cliente na chegada, agendamento no balcão (sinal recebido no salão), serviços e valores. A gerente também cadastra a equipe e cria os logins.
@@ -42,6 +42,7 @@ Testes: `npm test` (horários livres, CPF) e `npm run test:db` (reserva, sinal, 
    A partir daí ela cadastra a equipe e os serviços pelo painel.
 3. **Asaas:** conta no nome da Carol. Gere a chave de API e cadastre o webhook de cobranças apontando para `https://SEU_SITE/api/asaas/webhook`, com o mesmo token de `ASAAS_WEBHOOK_TOKEN` e os eventos `PAYMENT_RECEIVED` e `PAYMENT_CONFIRMED`. Teste primeiro no sandbox.
 4. **Netlify:** em *Add new project > Import an existing project*, escolha o repositório no GitHub. As configurações de build já estão em `netlify.toml`. Em *Project configuration > Environment variables*, preencha as variáveis de `.env.example` (as de Supabase, Asaas e `CRON_SECRET`) e publique. Cada `git push` na `main` publica uma versão nova.
-5. **Limpeza diária:** a tarefa agendada `netlify/functions/expirar-reservas.mts` roda sozinha às 03:00 (Brasília) no site publicado. Ela aparece em *Logs > Functions* no painel da Netlify.
+5. **Login com Google (opcional):** no [Google Cloud Console](https://console.cloud.google.com/), crie um projeto, configure a *tela de consentimento OAuth* (nome "Carol Rios Curly Studio", tipo externo) e crie uma credencial *ID do cliente OAuth* do tipo *Aplicativo da Web*. Em *URIs de redirecionamento autorizados*, coloque `https://SEU_PROJETO.supabase.co/auth/v1/callback` (aparece no Supabase em Authentication > Sign In / Providers > Google). Cole o *Client ID* e o *Client Secret* no Supabase, nessa mesma tela, e ative o Google. Em Authentication > URL Configuration, inclua `https://SEU_SITE/auth/callback` em *Redirect URLs*. Quem entra pelo Google completa telefone e CPF na primeira vez.
+6. **Limpeza diária:** a tarefa agendada `netlify/functions/expirar-reservas.mts` roda sozinha às 03:00 (Brasília) no site publicado. Ela aparece em *Logs > Functions* no painel da Netlify.
 
 **Plano grátis da Netlify:** 300 créditos por mês. Cada publicação gasta 15 e cada GB de tráfego gasta 20. Se acabar, o site pausa até o mês seguinte (não há cobrança). Junte os ajustes e publique poucas vezes.

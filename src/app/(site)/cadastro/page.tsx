@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { BotaoGoogle, DivisorOu } from "@/components/BotaoGoogle";
 import { FormCadastro } from "@/components/FormCadastro";
 import { caminhoSeguro } from "@/lib/validacao";
 
@@ -18,6 +19,10 @@ export default async function Cadastro({ searchParams }: PageProps<"/cadastro">)
         </Link>
       </p>
       <div className="cartao mt-8">
+        <div className="mx-auto max-w-sm">
+          <BotaoGoogle voltar={destino} />
+        </div>
+        <DivisorOu />
         <FormCadastro voltar={destino} />
       </div>
     </div>

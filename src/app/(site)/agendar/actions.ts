@@ -40,6 +40,9 @@ export async function iniciarAgendamento(form: FormData) {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) redirect(`/entrar?voltar=${encodeURIComponent(voltar)}`);
+  // Quem entrou pelo Google e ainda não completou o cadastro não tem ficha (nem CPF para o Pix).
+  const { data: ficha } = await supabase.from("clientes").select("id").eq("usuario_id", user.id).maybeSingle();
+  if (!ficha) redirect(`/cadastro/completar?voltar=${encodeURIComponent(voltar)}`);
 
   const funcionariaId = await profissionalParaHorario(servicoId, data, inicio, String(form.get("profissional") ?? "qualquer"));
   if (!funcionariaId) redirect(`${voltar}&erro=${encodeURIComponent(MENSAGENS.horario_indisponivel)}`);

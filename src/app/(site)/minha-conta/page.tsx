@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { formatarData, formatarHora } from "@/lib/agenda/horarios";
 import { exigirLogin } from "@/lib/auth/sessao";
 import { sair } from "../entrar/actions";
@@ -25,6 +26,7 @@ export default async function MinhaConta({ searchParams }: PageProps<"/minha-con
     supabase.from("clientes").select("nome, telefone, email, cep, endereco, bairro, cidade").eq("usuario_id", user.id).maybeSingle(),
     supabase.from("agendamentos").select("id, inicio, status, expira_em, servicos(nome), funcionarias(nome)").order("inicio", { ascending: false }).limit(30),
   ]);
+  if (!cliente && perfil === "cliente") redirect("/cadastro/completar?voltar=/minha-conta");
   const lista = (agendamentos ?? []) as unknown as Linha[];
   const agora = new Date();
   const proximos = lista.filter((a) => new Date(a.inicio) > agora && ["agendado", "aguardando_sinal"].includes(a.status)).reverse();
