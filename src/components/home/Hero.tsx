@@ -77,8 +77,6 @@ export function Hero() {
                 )}
               </motion.div>
             </div>
-            {/* Véu desfocado e sempre ativo na borda onde o vídeo encontra o fundo (onde fica a logo). */}
-            <div className="topo-veu pointer-events-none absolute inset-0 bg-terra/25 backdrop-blur-md" />
             <motion.div
               className="absolute bottom-6 left-4 w-40 md:top-1/2 md:bottom-auto md:left-0 md:w-56 md:-translate-x-1/2 md:-translate-y-1/2"
               initial={{ opacity: 0, scale: 0.9, filter: "blur(10px)" }}

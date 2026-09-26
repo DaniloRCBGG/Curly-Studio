@@ -52,25 +52,19 @@ body {
   @apply rounded-2xl border border-terra/10 bg-white/70 p-6;
 }
 
-/* Topo da home: o vídeo se dissolve no fundo terra, sem bordas retas (curvas suaves, sem "quina" de luz).
-   No celular a foto fica em cima e some para baixo; no computador, some para a esquerda. */
+/* Topo da home: o vídeo se dissolve no fundo terra, sem bordas retas nem véu por cima
+   (um véu com backdrop-blur deixava uma linha na borda esquerda depois que o vídeo parava).
+   A rampa é suave nas duas pontas, para a borda não virar uma faixa clara antes do marrom.
+   No celular a foto fica em cima e some para baixo; no computador, some para a esquerda e para baixo. */
 .topo-mascara {
-  -webkit-mask-image: linear-gradient(to bottom, rgb(0 0 0 / 1.00) 55%, rgb(0 0 0 / 0.93) 62%, rgb(0 0 0 / 0.74) 69%, rgb(0 0 0 / 0.50) 76%, rgb(0 0 0 / 0.26) 84%, rgb(0 0 0 / 0.07) 91%, rgb(0 0 0 / 0.00) 98%);
-  mask-image: linear-gradient(to bottom, rgb(0 0 0 / 1.00) 55%, rgb(0 0 0 / 0.93) 62%, rgb(0 0 0 / 0.74) 69%, rgb(0 0 0 / 0.50) 76%, rgb(0 0 0 / 0.26) 84%, rgb(0 0 0 / 0.07) 91%, rgb(0 0 0 / 0.00) 98%);
-}
-.topo-veu {
-  -webkit-mask-image: linear-gradient(to top, rgb(0 0 0 / 1.00) 0%, rgb(0 0 0 / 0.93) 8%, rgb(0 0 0 / 0.74) 15%, rgb(0 0 0 / 0.50) 22%, rgb(0 0 0 / 0.26) 30%, rgb(0 0 0 / 0.07) 38%, rgb(0 0 0 / 0.00) 45%);
-  mask-image: linear-gradient(to top, rgb(0 0 0 / 1.00) 0%, rgb(0 0 0 / 0.93) 8%, rgb(0 0 0 / 0.74) 15%, rgb(0 0 0 / 0.50) 22%, rgb(0 0 0 / 0.26) 30%, rgb(0 0 0 / 0.07) 38%, rgb(0 0 0 / 0.00) 45%);
+  -webkit-mask-image: linear-gradient(to bottom, rgb(0 0 0 / 1.00) 50%, rgb(0 0 0 / 1.00) 54%, rgb(0 0 0 / 0.99) 58%, rgb(0 0 0 / 0.94) 62%, rgb(0 0 0 / 0.84) 66%, rgb(0 0 0 / 0.69) 70%, rgb(0 0 0 / 0.50) 74%, rgb(0 0 0 / 0.31) 78%, rgb(0 0 0 / 0.16) 82%, rgb(0 0 0 / 0.06) 86%, rgb(0 0 0 / 0.01) 90%, rgb(0 0 0 / 0.00) 94%, rgb(0 0 0 / 0.00) 98%);
+  mask-image: linear-gradient(to bottom, rgb(0 0 0 / 1.00) 50%, rgb(0 0 0 / 1.00) 54%, rgb(0 0 0 / 0.99) 58%, rgb(0 0 0 / 0.94) 62%, rgb(0 0 0 / 0.84) 66%, rgb(0 0 0 / 0.69) 70%, rgb(0 0 0 / 0.50) 74%, rgb(0 0 0 / 0.31) 78%, rgb(0 0 0 / 0.16) 82%, rgb(0 0 0 / 0.06) 86%, rgb(0 0 0 / 0.01) 90%, rgb(0 0 0 / 0.00) 94%, rgb(0 0 0 / 0.00) 98%);
 }
 @media (min-width: 48rem) {
   .topo-mascara {
-    -webkit-mask-image: linear-gradient(to right, rgb(0 0 0 / 0.00) 0%, rgb(0 0 0 / 0.07) 8%, rgb(0 0 0 / 0.26) 15%, rgb(0 0 0 / 0.50) 22%, rgb(0 0 0 / 0.74) 30%, rgb(0 0 0 / 0.93) 38%, rgb(0 0 0 / 1.00) 45%), linear-gradient(to top, rgb(0 0 0 / 0.00) 0%, rgb(0 0 0 / 0.07) 2%, rgb(0 0 0 / 0.26) 5%, rgb(0 0 0 / 0.50) 7%, rgb(0 0 0 / 0.74) 9%, rgb(0 0 0 / 0.93) 12%, rgb(0 0 0 / 1.00) 14%);
+    -webkit-mask-image: linear-gradient(to right, rgb(0 0 0 / 0.00) 0%, rgb(0 0 0 / 0.00) 5%, rgb(0 0 0 / 0.01) 10%, rgb(0 0 0 / 0.06) 14%, rgb(0 0 0 / 0.16) 19%, rgb(0 0 0 / 0.31) 24%, rgb(0 0 0 / 0.50) 29%, rgb(0 0 0 / 0.69) 34%, rgb(0 0 0 / 0.84) 39%, rgb(0 0 0 / 0.94) 44%, rgb(0 0 0 / 0.99) 48%, rgb(0 0 0 / 1.00) 53%, rgb(0 0 0 / 1.00) 58%), linear-gradient(to top, rgb(0 0 0 / 0.00) 0%, rgb(0 0 0 / 0.00) 1%, rgb(0 0 0 / 0.01) 3%, rgb(0 0 0 / 0.06) 4%, rgb(0 0 0 / 0.16) 5%, rgb(0 0 0 / 0.31) 7%, rgb(0 0 0 / 0.50) 8%, rgb(0 0 0 / 0.69) 9%, rgb(0 0 0 / 0.84) 11%, rgb(0 0 0 / 0.94) 12%, rgb(0 0 0 / 0.99) 13%, rgb(0 0 0 / 1.00) 15%, rgb(0 0 0 / 1.00) 16%);
     -webkit-mask-composite: source-in;
-    mask-image: linear-gradient(to right, rgb(0 0 0 / 0.00) 0%, rgb(0 0 0 / 0.07) 8%, rgb(0 0 0 / 0.26) 15%, rgb(0 0 0 / 0.50) 22%, rgb(0 0 0 / 0.74) 30%, rgb(0 0 0 / 0.93) 38%, rgb(0 0 0 / 1.00) 45%), linear-gradient(to top, rgb(0 0 0 / 0.00) 0%, rgb(0 0 0 / 0.07) 2%, rgb(0 0 0 / 0.26) 5%, rgb(0 0 0 / 0.50) 7%, rgb(0 0 0 / 0.74) 9%, rgb(0 0 0 / 0.93) 12%, rgb(0 0 0 / 1.00) 14%);
+    mask-image: linear-gradient(to right, rgb(0 0 0 / 0.00) 0%, rgb(0 0 0 / 0.00) 5%, rgb(0 0 0 / 0.01) 10%, rgb(0 0 0 / 0.06) 14%, rgb(0 0 0 / 0.16) 19%, rgb(0 0 0 / 0.31) 24%, rgb(0 0 0 / 0.50) 29%, rgb(0 0 0 / 0.69) 34%, rgb(0 0 0 / 0.84) 39%, rgb(0 0 0 / 0.94) 44%, rgb(0 0 0 / 0.99) 48%, rgb(0 0 0 / 1.00) 53%, rgb(0 0 0 / 1.00) 58%), linear-gradient(to top, rgb(0 0 0 / 0.00) 0%, rgb(0 0 0 / 0.00) 1%, rgb(0 0 0 / 0.01) 3%, rgb(0 0 0 / 0.06) 4%, rgb(0 0 0 / 0.16) 5%, rgb(0 0 0 / 0.31) 7%, rgb(0 0 0 / 0.50) 8%, rgb(0 0 0 / 0.69) 9%, rgb(0 0 0 / 0.84) 11%, rgb(0 0 0 / 0.94) 12%, rgb(0 0 0 / 0.99) 13%, rgb(0 0 0 / 1.00) 15%, rgb(0 0 0 / 1.00) 16%);
     mask-composite: intersect;
-  }
-  .topo-veu {
-    -webkit-mask-image: linear-gradient(to right, rgb(0 0 0 / 1.00) 0%, rgb(0 0 0 / 0.93) 8%, rgb(0 0 0 / 0.74) 17%, rgb(0 0 0 / 0.50) 25%, rgb(0 0 0 / 0.26) 33%, rgb(0 0 0 / 0.07) 42%, rgb(0 0 0 / 0.00) 50%);
-    mask-image: linear-gradient(to right, rgb(0 0 0 / 1.00) 0%, rgb(0 0 0 / 0.93) 8%, rgb(0 0 0 / 0.74) 17%, rgb(0 0 0 / 0.50) 25%, rgb(0 0 0 / 0.26) 33%, rgb(0 0 0 / 0.07) 42%, rgb(0 0 0 / 0.00) 50%);
   }
 }
