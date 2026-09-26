@@ -13,6 +13,7 @@
   --color-terra: var(--cr-terra);
   --color-areia: var(--cr-areia);
   --color-folha: var(--cr-folha);
+  --color-camisa: #5e5f26; /* verde-oliva da blusa da Carol no vídeo do topo */
   --color-folha-escura: var(--cr-folha-escura);
   --color-areia-clara: var(--cr-areia-clara);
   --font-display: var(--font-fraunces), Georgia, serif;
@@ -66,5 +67,17 @@ body {
     -webkit-mask-composite: source-in;
     mask-image: linear-gradient(to right, rgb(0 0 0 / 0.00) 0%, rgb(0 0 0 / 0.00) 5%, rgb(0 0 0 / 0.01) 10%, rgb(0 0 0 / 0.06) 14%, rgb(0 0 0 / 0.16) 19%, rgb(0 0 0 / 0.31) 24%, rgb(0 0 0 / 0.50) 29%, rgb(0 0 0 / 0.69) 34%, rgb(0 0 0 / 0.84) 39%, rgb(0 0 0 / 0.94) 44%, rgb(0 0 0 / 0.99) 48%, rgb(0 0 0 / 1.00) 53%, rgb(0 0 0 / 1.00) 58%), linear-gradient(to top, rgb(0 0 0 / 0.00) 0%, rgb(0 0 0 / 0.00) 1%, rgb(0 0 0 / 0.01) 3%, rgb(0 0 0 / 0.06) 4%, rgb(0 0 0 / 0.16) 5%, rgb(0 0 0 / 0.31) 7%, rgb(0 0 0 / 0.50) 8%, rgb(0 0 0 / 0.69) 9%, rgb(0 0 0 / 0.84) 11%, rgb(0 0 0 / 0.94) 12%, rgb(0 0 0 / 0.99) 13%, rgb(0 0 0 / 1.00) 15%, rgb(0 0 0 / 1.00) 16%);
     mask-composite: intersect;
+  }
+}
+/* Desfoque verde atrás do vídeo: começa invisível perto do texto e cresce para a direita. */
+.topo-fundo-verde {
+  -webkit-mask-image: linear-gradient(to right, transparent 20%, black 75%);
+  mask-image: linear-gradient(to right, transparent 20%, black 75%);
+}
+/* Quando a tela é mais larga que o conteúdo (80rem), a borda direita do vídeo também se dissolve no verde. */
+@media (min-width: 80rem) {
+  .topo-mascara {
+    -webkit-mask-image: linear-gradient(to right, rgb(0 0 0 / 0.00) 0%, rgb(0 0 0 / 0.00) 5%, rgb(0 0 0 / 0.01) 10%, rgb(0 0 0 / 0.06) 14%, rgb(0 0 0 / 0.16) 19%, rgb(0 0 0 / 0.31) 24%, rgb(0 0 0 / 0.50) 29%, rgb(0 0 0 / 0.69) 34%, rgb(0 0 0 / 0.84) 39%, rgb(0 0 0 / 0.94) 43%, rgb(0 0 0 / 0.99) 48%, rgb(0 0 0 / 1.00) 53%, rgb(0 0 0 / 1.00) 58%, rgb(0 0 0 / 1.00) 66%, rgb(0 0 0 / 0.90) 74%, rgb(0 0 0 / 0.65) 82%, rgb(0 0 0 / 0.35) 90%, rgb(0 0 0 / 0.10) 96%, rgb(0 0 0 / 0.00) 100%), linear-gradient(to top, rgb(0 0 0 / 0.00) 0%, rgb(0 0 0 / 0.00) 1%, rgb(0 0 0 / 0.01) 3%, rgb(0 0 0 / 0.06) 4%, rgb(0 0 0 / 0.16) 5%, rgb(0 0 0 / 0.31) 7%, rgb(0 0 0 / 0.50) 8%, rgb(0 0 0 / 0.69) 9%, rgb(0 0 0 / 0.84) 11%, rgb(0 0 0 / 0.94) 12%, rgb(0 0 0 / 0.99) 13%, rgb(0 0 0 / 1.00) 15%, rgb(0 0 0 / 1.00) 16%);
+    mask-image: linear-gradient(to right, rgb(0 0 0 / 0.00) 0%, rgb(0 0 0 / 0.00) 5%, rgb(0 0 0 / 0.01) 10%, rgb(0 0 0 / 0.06) 14%, rgb(0 0 0 / 0.16) 19%, rgb(0 0 0 / 0.31) 24%, rgb(0 0 0 / 0.50) 29%, rgb(0 0 0 / 0.69) 34%, rgb(0 0 0 / 0.84) 39%, rgb(0 0 0 / 0.94) 43%, rgb(0 0 0 / 0.99) 48%, rgb(0 0 0 / 1.00) 53%, rgb(0 0 0 / 1.00) 58%, rgb(0 0 0 / 1.00) 66%, rgb(0 0 0 / 0.90) 74%, rgb(0 0 0 / 0.65) 82%, rgb(0 0 0 / 0.35) 90%, rgb(0 0 0 / 0.10) 96%, rgb(0 0 0 / 0.00) 100%), linear-gradient(to top, rgb(0 0 0 / 0.00) 0%, rgb(0 0 0 / 0.00) 1%, rgb(0 0 0 / 0.01) 3%, rgb(0 0 0 / 0.06) 4%, rgb(0 0 0 / 0.16) 5%, rgb(0 0 0 / 0.31) 7%, rgb(0 0 0 / 0.50) 8%, rgb(0 0 0 / 0.69) 9%, rgb(0 0 0 / 0.84) 11%, rgb(0 0 0 / 0.94) 12%, rgb(0 0 0 / 0.99) 13%, rgb(0 0 0 / 1.00) 15%, rgb(0 0 0 / 1.00) 16%);
   }
 }

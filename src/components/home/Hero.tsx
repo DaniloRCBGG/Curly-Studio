@@ -43,6 +43,14 @@ export function Hero() {
 
   return (
     <section ref={secao} className="relative isolate overflow-hidden bg-terra text-areia">
+      {/* Em telas mais largas que o conteúdo, a sobra à direita vira um desfoque verde
+          (tom da blusa da Carol) em vez de uma tarja marrom. */}
+      {video && (
+        <div aria-hidden className="topo-fundo-verde pointer-events-none absolute inset-y-0 right-0 -z-10 hidden w-1/2 overflow-hidden md:block">
+          <Image src={midia.topo.capa} alt="" fill sizes="50vw" className="scale-125 object-cover opacity-90 blur-[72px]" style={{ objectPosition: midia.topo.enquadramento }} />
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-camisa/30 to-camisa/75" />
+        </div>
+      )}
       <div className="mx-auto grid min-h-[92svh] max-w-7xl md:grid-cols-[1fr_1fr]">
         {/* Painel da foto: no celular fica em cima; no computador, à direita. */}
         {video && (
