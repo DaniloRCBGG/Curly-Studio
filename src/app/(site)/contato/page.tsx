@@ -1,12 +1,10 @@
 import type { Metadata } from "next";
+import { MapaBairro } from "@/components/MapaBairro";
 import { salao } from "@/conteudo/salao";
 
 export const metadata: Metadata = { title: "Contato e localização" };
 
 export default function Contato() {
-  const { latitude: lat, longitude: lon } = salao.contato;
-  const d = 0.004;
-  const mapa = `https://www.openstreetmap.org/export/embed.html?bbox=${lon - d},${lat - d},${lon + d},${lat + d}&layer=mapnik&marker=${lat},${lon}`;
   return (
     <div className="mx-auto grid max-w-6xl gap-10 px-4 py-16 sm:px-6 md:grid-cols-2">
       <div>
@@ -42,12 +40,7 @@ export default function Contato() {
           </div>
         </dl>
       </div>
-      <iframe
-        title="Mapa com a localização do salão"
-        src={mapa}
-        className="min-h-80 w-full rounded-2xl border border-terra/10"
-        loading="lazy"
-      />
+      <MapaBairro zoom={16} className="self-start [&_iframe]:h-96" />
     </div>
   );
 }
