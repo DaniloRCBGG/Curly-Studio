@@ -12,7 +12,7 @@ export default function Contato() {
         <dl className="mt-8 space-y-5">
           <div>
             <dt className="rotulo">Endereço</dt>
-            <dd>{salao.contato.endereco}</dd>
+            <dd className="whitespace-pre-line">{salao.contato.endereco}</dd>
           </div>
           <div>
             <dt className="rotulo">WhatsApp</dt>

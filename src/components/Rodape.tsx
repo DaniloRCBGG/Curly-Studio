@@ -17,7 +17,7 @@ export function Rodape() {
               {h.dias}: {h.horas}
             </p>
           ))}
-          <p className="pt-2">{salao.contato.endereco}</p>
+          <p className="pt-2 whitespace-pre-line">{salao.contato.endereco}</p>
         </div>
         <div className="space-y-2 text-sm">
           <p className="font-medium text-areia-clara">Fale com a gente</p>
