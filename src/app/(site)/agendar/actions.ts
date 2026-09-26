@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { disponibilidade } from "@/lib/agenda/disponibilidade";
 import { formatarData, formatarHora } from "@/lib/agenda/horarios";
 import { criarCobrancaPix } from "@/lib/pagamentos/pix";
+import { ehTamanho, type Tamanho } from "@/lib/servicos-tabela";
 import { criarClienteAdmin } from "@/lib/supabase/admin";
 import { criarClienteServidor } from "@/lib/supabase/server";
 
@@ -11,6 +12,7 @@ const MENSAGENS: Record<string, string> = {
   horario_indisponivel: "Esse horário acabou de ser reservado por outra pessoa. Escolha outro.",
   horario_passado: "Esse horário já passou. Escolha outro.",
   cliente_nao_encontrada: "Não encontramos sua ficha de cliente. Fale com o salão pelo WhatsApp.",
+  tamanho_obrigatorio: "Escolha o tamanho do seu cabelo antes do horário.",
 };
 
 function erroDe(mensagem: string) {
@@ -30,7 +32,8 @@ export async function iniciarAgendamento(form: FormData) {
   const servicoId = String(form.get("servico"));
   const data = String(form.get("data"));
   const inicio = String(form.get("inicio"));
-  const voltar = `/agendar?servico=${servicoId}&data=${data}`;
+  const tamanho = ehTamanho(form.get("tamanho")) ? (form.get("tamanho") as Tamanho) : null;
+  const voltar = `/agendar?servico=${servicoId}${tamanho ? `&tamanho=${tamanho}` : ""}&data=${data}`;
 
   const supabase = await criarClienteServidor();
   const {
@@ -45,6 +48,7 @@ export async function iniciarAgendamento(form: FormData) {
     p_servico_id: servicoId,
     p_funcionaria_id: funcionariaId,
     p_inicio: inicio,
+    p_tamanho: tamanho,
   });
   if (error || !agendamentoId) redirect(`${voltar}&erro=${encodeURIComponent(erroDe(error?.message ?? ""))}`);
 

@@ -3,15 +3,16 @@
 import { AnimatePresence, motion } from "motion/react";
 import Link from "next/link";
 import { useState } from "react";
-import { gruposProdutos, gruposServicos, tamanhos, type ServicoTabela } from "@/conteudo/valores";
+import { adicionaisPorGrupo, gruposProdutos } from "@/conteudo/valores";
+import { TAMANHOS, agruparServicos, precosPorTamanho, type Servico, type Tamanho } from "@/lib/servicos-tabela";
 
 const suave = [0.22, 1, 0.36, 1] as const;
 const real = (v: number) => `R$ ${v.toLocaleString("pt-BR")}`;
-type Tamanho = (typeof tamanhos)[number];
 
 // Tabela de valores: abas Serviços/Produtos e um seletor de tamanho que destaca o preço
 // do cabelo da cliente em todos os serviços.
-export function TabelaValores() {
+export function TabelaValores({ servicos }: { servicos: Servico[] }) {
+  const gruposServicos = agruparServicos(servicos).map((g) => ({ ...g, adicionais: adicionaisPorGrupo[g.id] }));
   const [aba, setAba] = useState<"servicos" | "produtos">("servicos");
   const [tamanho, setTamanho] = useState<Tamanho | null>(null);
 
@@ -35,7 +36,7 @@ export function TabelaValores() {
         {aba === "servicos" && (
           <div className="flex items-center gap-2 text-sm">
             <span className="text-terra/85">Meu cabelo:</span>
-            {tamanhos.map((t) => (
+            {TAMANHOS.map((t) => (
               <button
                 key={t}
                 aria-pressed={tamanho === t}
@@ -59,6 +60,7 @@ export function TabelaValores() {
                 </a>
               ))}
             </nav>
+            {gruposServicos.length === 0 && <p className="cartao mt-8 text-terra/85">A tabela de serviços aparece aqui assim que for cadastrada no painel da equipe.</p>}
             {gruposServicos.map((g) => (
               <section key={g.id} id={g.id} className="scroll-mt-40 pt-12">
                 <h2 className="titulo text-3xl">{g.titulo.toLowerCase()}</h2>
@@ -134,7 +136,9 @@ export function TabelaValores() {
   );
 }
 
-function Cartao({ servico, tamanho, indice }: { servico: ServicoTabela; tamanho: Tamanho | null; indice: number }) {
+function Cartao({ servico, tamanho, indice }: { servico: Servico; tamanho: Tamanho | null; indice: number }) {
+  const precos = precosPorTamanho(servico);
+  const observacoes = servico.observacoes?.split("\n").filter(Boolean) ?? [];
   return (
     <motion.article
       initial={{ opacity: 0, y: 24 }}
@@ -145,25 +149,29 @@ function Cartao({ servico, tamanho, indice }: { servico: ServicoTabela; tamanho:
     >
       <h3 className="text-sm font-medium tracking-wide text-terra uppercase">{servico.nome}</h3>
       {servico.descricao && <p className="mt-1 text-terra/85">{servico.descricao}</p>}
-      {servico.aPartirDe && <p className="mt-1 text-xs font-medium tracking-wide text-terra/85 uppercase">a partir de</p>}
-      <dl className="mt-4 grid grid-cols-4 gap-2">
-        {tamanhos.map((t, i) => {
-          const ativo = tamanho === t;
-          const apagado = tamanho !== null && !ativo;
-          return (
-            <motion.div
-              key={t}
-              animate={{ scale: ativo ? 1.06 : 1 }}
-              transition={{ duration: 0.35, ease: suave }}
-              className={`rounded-xl px-2 py-3 text-center ${ativo ? "bg-folha-escura text-areia-clara" : apagado ? "bg-areia/35" : "bg-areia/70"}`}
-            >
-              <dt className={`text-sm font-medium ${ativo ? "text-areia-clara" : "text-terra"}`}>{t}</dt>
-              <dd className={`mt-1 font-medium whitespace-nowrap ${ativo ? "" : "text-folha-escura"}`}>{real(servico.precos[i])}</dd>
-            </motion.div>
-          );
-        })}
-      </dl>
-      {servico.observacoes?.map((o) => (
+      {servico.a_partir_de && <p className="mt-1 text-xs font-medium tracking-wide text-terra/85 uppercase">a partir de</p>}
+      {precos ? (
+        <dl className="mt-4 grid grid-cols-4 gap-2">
+          {TAMANHOS.map((t, i) => {
+            const ativo = tamanho === t;
+            const apagado = tamanho !== null && !ativo;
+            return (
+              <motion.div
+                key={t}
+                animate={{ scale: ativo ? 1.06 : 1 }}
+                transition={{ duration: 0.35, ease: suave }}
+                className={`rounded-xl px-2 py-3 text-center ${ativo ? "bg-folha-escura text-areia-clara" : apagado ? "bg-areia/35" : "bg-areia/70"}`}
+              >
+                <dt className={`text-sm font-medium ${ativo ? "text-areia-clara" : "text-terra"}`}>{t}</dt>
+                <dd className={`mt-1 font-medium whitespace-nowrap ${ativo ? "" : "text-folha-escura"}`}>{real(precos[i])}</dd>
+              </motion.div>
+            );
+          })}
+        </dl>
+      ) : (
+        <p className="mt-4 inline-block rounded-xl bg-areia/70 px-4 py-3 font-medium text-folha-escura">{real(servico.valor)}</p>
+      )}
+      {observacoes.map((o) => (
         <p key={o} className="mt-3 text-sm text-terra/85">
           {o}
         </p>

@@ -1,16 +1,14 @@
 import Link from "next/link";
-import { ListaServicos } from "@/components/ListaServicos";
 import { ComoFunciona } from "@/components/home/ComoFunciona";
 import { Faixa } from "@/components/home/Faixa";
 import { Galeria } from "@/components/home/Galeria";
 import { Hero } from "@/components/home/Hero";
 import { Revelar } from "@/components/home/Revelar";
+import { ServicosHome } from "@/components/home/ServicosHome";
 import { TextoRolagem } from "@/components/home/TextoRolagem";
 import { salao } from "@/conteudo/salao";
-import { listarServicos } from "@/lib/servicos";
 
-export default async function Inicio() {
-  const servicos = (await listarServicos()).slice(0, 3);
+export default function Inicio() {
   return (
     <>
       <Hero />
@@ -37,29 +35,7 @@ export default async function Inicio() {
 
       <Galeria />
 
-      <section className="mx-auto max-w-6xl px-4 py-20 sm:px-6">
-        <Revelar className="flex flex-wrap items-end justify-between gap-4">
-          <h2 className="titulo text-4xl sm:text-5xl">serviços</h2>
-          <Link href="/servicos" className="text-sm font-medium text-folha-escura underline-offset-4 hover:underline">
-            Ver todos
-          </Link>
-        </Revelar>
-        <Revelar atraso={0.15} className="mt-8">
-          <ListaServicos servicos={servicos} />
-        </Revelar>
-        {/* Para quem só quer saber quanto custa, sem simular um agendamento. */}
-        <Revelar atraso={0.2} className="mt-10 flex flex-col items-start gap-5 rounded-3xl bg-areia p-8 sm:flex-row sm:items-center sm:justify-between">
-          <div className="max-w-xl">
-            <h3 className="titulo text-3xl">quer saber quanto custa?</h3>
-            <p className="mt-2 text-terra/85">
-              Não precisa simular um agendamento. Na nossa tabela você vê o valor de cada serviço pelo tamanho do seu cabelo, e os produtos que vendemos no salão.
-            </p>
-          </div>
-          <Link href="/valores" className="botao shrink-0">
-            Ver nossos valores
-          </Link>
-        </Revelar>
-      </section>
+      <ServicosHome />
 
       <div className="bg-areia-clara">
         <ComoFunciona />

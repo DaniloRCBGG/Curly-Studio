@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "motion/react";
+import { CabecalhoSecao } from "./CabecalhoSecao";
 import { RevelarGrupo, itemRevelar } from "./Revelar";
 
 const passos = [
@@ -12,7 +13,7 @@ const passos = [
 export function ComoFunciona() {
   return (
     <section className="mx-auto max-w-6xl px-4 py-20 sm:px-6">
-      <h2 className="titulo text-4xl sm:text-5xl">como agendar</h2>
+      <CabecalhoSecao rotulo="Passo a passo" titulo="como agendar" texto="Seu horário fica confirmado na hora, com um sinal pago por Pix." />
       <div className="relative mt-12">
         <motion.span
           className="absolute top-7 left-0 hidden h-px w-full origin-left bg-folha-escura/40 md:block"

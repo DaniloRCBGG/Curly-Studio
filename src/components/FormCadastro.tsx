@@ -43,7 +43,7 @@ export function FormCadastro({ voltar }: { voltar: string }) {
       </div>
       <div>
         <label className="rotulo" htmlFor="cidade">Cidade</label>
-        <input className="campo" id="cidade" name="cidade" autoComplete="address-level2" defaultValue="Niterói" />
+        <input className="campo" id="cidade" name="cidade" autoComplete="address-level2" defaultValue="Rio de Janeiro" />
       </div>
       <label className="flex items-start gap-3 text-sm sm:col-span-2">
         <input type="checkbox" name="aceite" className="mt-1 size-4 accent-folha-escura" required />

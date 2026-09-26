@@ -10,12 +10,14 @@ import { salao } from "@/conteudo/salao";
 const suave = [0.22, 1, 0.36, 1] as const;
 
 // Topo da home: o vídeo da Carol toca uma vez e para no último quadro, ao lado da logo.
-// Depois o texto entra palavra por palavra, e tudo se move devagar ao rolar.
+// O texto entra palavra por palavra assim que o vídeo começa, a logo surge na troca de foto,
+// e tudo se move devagar ao rolar.
 export function Hero() {
   const reduzir = useReducedMotion();
   const video = midia.topo.video;
   const [pronta, setPronta] = useState(!video);
   const [tocando, setTocando] = useState(false);
+  const [trocou, setTrocou] = useState(false);
   const player = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
@@ -39,7 +41,10 @@ export function Hero() {
   const opacidade = useTransform(scrollYProgress, [0, 0.75], [1, 0]);
 
   const palavras = salao.chamada.split(" ");
-  const estado = pronta ? "visivel" : "oculto";
+  // O texto entra assim que o vídeo começa; a logo, quando a foto troca (ou no fim, se o vídeo não tocar).
+  const textoPronto = pronta || tocando;
+  const logoPronta = pronta || trocou;
+  const estado = textoPronto ? "visivel" : "oculto";
 
   return (
     <section ref={secao} className="relative isolate overflow-hidden bg-terra text-areia">
@@ -70,6 +75,9 @@ export function Hero() {
                     preload="auto"
                     aria-label="Carol Rios"
                     onPlaying={() => setTocando(true)}
+                    onTimeUpdate={(e) => {
+                      if (!trocou && e.currentTarget.currentTime >= midia.topo.logoEm) setTrocou(true);
+                    }}
                     onEnded={() => setPronta(true)}
                   >
                     <source src={video.webm} type="video/webm" />
@@ -81,7 +89,7 @@ export function Hero() {
             <motion.div
               className="absolute bottom-6 left-4 w-44 md:top-1/2 md:bottom-auto md:left-0 md:w-64 md:-translate-x-1/3 md:-translate-y-1/2 lg:w-80"
               initial={{ opacity: 0, scale: 0.9, filter: "blur(10px)" }}
-              animate={pronta ? { opacity: 1, scale: 1, filter: "blur(0px)" } : {}}
+              animate={logoPronta ? { opacity: 1, scale: 1, filter: "blur(0px)" } : {}}
               transition={{ duration: 1.2, ease: suave }}
             >
               <Image src="/marca/logo-secundaria-clara.svg" alt="" width={320} height={223} aria-hidden priority className="h-auto w-full" />
@@ -120,7 +128,7 @@ export function Hero() {
             <motion.p
               className="mt-6 max-w-md text-lg text-areia"
               initial={{ opacity: 0, y: 16 }}
-              animate={pronta ? { opacity: 1, y: 0 } : {}}
+              animate={textoPronto ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.9, delay: 0.4 + palavras.length * 0.09, ease: suave }}
             >
               {salao.subchamada}
@@ -128,7 +136,7 @@ export function Hero() {
             <motion.div
               className="mt-8 flex flex-wrap gap-3"
               initial={{ opacity: 0, y: 16 }}
-              animate={pronta ? { opacity: 1, y: 0 } : {}}
+              animate={textoPronto ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.9, delay: 0.6 + palavras.length * 0.09, ease: suave }}
             >
               <Link href="/agendar" className="botao-no-escuro">
