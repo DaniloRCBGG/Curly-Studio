@@ -13,7 +13,9 @@ export default async function Estoque({ searchParams }: PageProps<"/equipe/estoq
   const { supabase } = await exigirEquipe();
 
   let consulta = supabase.from("produtos").select("*").order("ativo", { ascending: false }).order("nome");
-  if (termo) consulta = consulta.or(`nome.ilike.%${termo.replace(/[,()%]/g, "")}%,marca.ilike.%${termo.replace(/[,()%]/g, "")}%`);
+  // O filtro .or() é texto montado à mão: só letras, números, espaço e hífen entram, para a busca não virar outro filtro.
+  const buscaSegura = termo.replace(/[^\p{L}\p{N} -]/gu, "").trim();
+  if (buscaSegura) consulta = consulta.or(`nome.ilike.%${buscaSegura}%,marca.ilike.%${buscaSegura}%`);
   const [{ data }, { data: fornecedores }] = await Promise.all([
     consulta,
     supabase.from("fornecedores").select("id, nome").eq("ativo", true).order("nome"),
