@@ -34,7 +34,7 @@ export function TabelaValores() {
         </div>
         {aba === "servicos" && (
           <div className="flex items-center gap-2 text-sm">
-            <span className="text-terra/70">Meu cabelo:</span>
+            <span className="text-terra/85">Meu cabelo:</span>
             {tamanhos.map((t) => (
               <button
                 key={t}
@@ -85,7 +85,7 @@ export function TabelaValores() {
                         ))}
                       </ul>
                       {a.observacoes?.map((o) => (
-                        <p key={o} className="mt-3 text-sm text-terra/70">
+                        <p key={o} className="mt-3 text-sm text-terra/85">
                           {o}
                         </p>
                       ))}
@@ -94,7 +94,7 @@ export function TabelaValores() {
                 </div>
               </section>
             ))}
-            <p className="mt-12 text-sm text-terra/70">
+            <p className="mt-12 text-sm text-terra/85">
               P, M, G e GG indicam o volume e o comprimento do cabelo. Na dúvida, a Carol confirma o tamanho no atendimento. Valores com “a partir de” podem variar conforme a técnica e a quantidade de produto.
             </p>
           </motion.div>
@@ -119,7 +119,7 @@ export function TabelaValores() {
                 )}
               </div>
             ))}
-            <p className="text-sm text-terra/70 md:col-span-2">Produtos à venda no salão.</p>
+            <p className="text-sm text-terra/85 md:col-span-2">Produtos à venda no salão.</p>
           </motion.div>
         )}
       </AnimatePresence>
@@ -144,8 +144,8 @@ function Cartao({ servico, tamanho, indice }: { servico: ServicoTabela; tamanho:
       className="rounded-2xl bg-white/70 p-6 shadow-[0_1px_0_rgb(61_28_17/0.06)]"
     >
       <h3 className="text-sm font-medium tracking-wide text-terra uppercase">{servico.nome}</h3>
-      {servico.descricao && <p className="mt-1 text-terra/75">{servico.descricao}</p>}
-      {servico.aPartirDe && <p className="mt-1 text-xs tracking-wide text-terra/60 uppercase">a partir de</p>}
+      {servico.descricao && <p className="mt-1 text-terra/85">{servico.descricao}</p>}
+      {servico.aPartirDe && <p className="mt-1 text-xs font-medium tracking-wide text-terra/85 uppercase">a partir de</p>}
       <dl className="mt-4 grid grid-cols-4 gap-2">
         {tamanhos.map((t, i) => {
           const ativo = tamanho === t;
@@ -153,18 +153,18 @@ function Cartao({ servico, tamanho, indice }: { servico: ServicoTabela; tamanho:
           return (
             <motion.div
               key={t}
-              animate={{ opacity: apagado ? 0.35 : 1, scale: ativo ? 1.06 : 1 }}
+              animate={{ scale: ativo ? 1.06 : 1 }}
               transition={{ duration: 0.35, ease: suave }}
-              className={`rounded-xl px-2 py-3 text-center ${ativo ? "bg-folha-escura text-areia-clara" : "bg-areia/60"}`}
+              className={`rounded-xl px-2 py-3 text-center ${ativo ? "bg-folha-escura text-areia-clara" : apagado ? "bg-areia/35" : "bg-areia/70"}`}
             >
-              <dt className={`text-xs font-medium ${ativo ? "text-areia-clara/80" : "text-terra/60"}`}>{t}</dt>
+              <dt className={`text-sm font-medium ${ativo ? "text-areia-clara" : "text-terra"}`}>{t}</dt>
               <dd className={`mt-1 font-medium whitespace-nowrap ${ativo ? "" : "text-folha-escura"}`}>{real(servico.precos[i])}</dd>
             </motion.div>
           );
         })}
       </dl>
       {servico.observacoes?.map((o) => (
-        <p key={o} className="mt-3 text-sm text-terra/70">
+        <p key={o} className="mt-3 text-sm text-terra/85">
           {o}
         </p>
       ))}
