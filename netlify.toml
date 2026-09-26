@@ -1,0 +1,12 @@
+# Configuração da Netlify. O Next.js é detectado sozinho (adaptador OpenNext da Netlify):
+# páginas, Server Actions, proxy.ts e otimização de imagens viram funções da Netlify.
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+# Tarefas agendadas (a limpeza diária) ficam em netlify/functions.
+[functions]
+  directory = "netlify/functions"

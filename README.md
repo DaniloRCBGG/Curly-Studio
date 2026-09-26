@@ -16,7 +16,7 @@ Textos do site ficam em `src/conteudo/salao.ts`; tudo marcado com `[PREENCHER]` 
 
 ## Stack
 
-Next.js 16 (App Router) + Supabase (Postgres, login e regras de acesso) + Vercel. Pix pelo Asaas.
+Next.js 16 (App Router) + Supabase (Postgres, login e regras de acesso) + Netlify. Pix pelo Asaas.
 
 ## Rodar localmente
 
@@ -33,7 +33,7 @@ Testes: `npm test` (horários livres, CPF) e `npm run test:db` (reserva, sinal, 
 
 ## Colocar no ar
 
-1. **Supabase:** crie o projeto (plano gratuito), rode `npx supabase link` e `npx supabase db push`. Em Authentication > URL Configuration, coloque a URL do site.
+1. **Supabase:** crie o projeto (plano gratuito), rode `npx supabase link` e `npx supabase db push`. Depois rode uma vez `supabase/dados/tabela-de-servicos.sql` no SQL Editor (a tabela de serviços do salão). Em Authentication > URL Configuration, coloque a URL do site em *Site URL* e em *Redirect URLs*.
 2. **Primeira gerente:** a Carol cria a conta pelo site e depois, no SQL Editor do Supabase:
    ```sql
    update usuarios set perfil = 'gerente' where id = (select id from auth.users where email = 'EMAIL_DA_CAROL');
@@ -41,4 +41,7 @@ Testes: `npm test` (horários livres, CPF) e `npm run test:db` (reserva, sinal, 
    ```
    A partir daí ela cadastra a equipe e os serviços pelo painel.
 3. **Asaas:** conta no nome da Carol. Gere a chave de API e cadastre o webhook de cobranças apontando para `https://SEU_SITE/api/asaas/webhook`, com o mesmo token de `ASAAS_WEBHOOK_TOKEN` e os eventos `PAYMENT_RECEIVED` e `PAYMENT_CONFIRMED`. Teste primeiro no sandbox.
-4. **Vercel:** importe o repositório, preencha as variáveis de `.env.example` e publique. A limpeza diária de reservas vencidas já está em `vercel.json`.
+4. **Netlify:** em *Add new project > Import an existing project*, escolha o repositório no GitHub. As configurações de build já estão em `netlify.toml`. Em *Project configuration > Environment variables*, preencha as variáveis de `.env.example` (as de Supabase, Asaas e `CRON_SECRET`) e publique. Cada `git push` na `main` publica uma versão nova.
+5. **Limpeza diária:** a tarefa agendada `netlify/functions/expirar-reservas.mts` roda sozinha às 03:00 (Brasília) no site publicado. Ela aparece em *Logs > Functions* no painel da Netlify.
+
+**Plano grátis da Netlify:** 300 créditos por mês. Cada publicação gasta 15 e cada GB de tráfego gasta 20. Se acabar, o site pausa até o mês seguinte (não há cobrança). Junte os ajustes e publique poucas vezes.
