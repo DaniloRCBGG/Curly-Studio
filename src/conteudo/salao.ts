@@ -15,15 +15,17 @@ export const salao = {
     { titulo: "Natural", texto: "Produtos e técnicas que respeitam a saúde do fio." },
   ],
   contato: {
-    whatsapp: "[PREENCHER] (21) 90000-0000",
-    whatsappLink: "https://wa.me/5521900000000", // [PREENCHER]
+    whatsapp: "(21) 96466-1738",
+    whatsappLink: "https://api.whatsapp.com/send?phone=5521964661738",
     instagram: "@carolrioscurlystudio", // [PREENCHER]
     instagramLink: "https://instagram.com/carolrioscurlystudio", // [PREENCHER]
     email: "[PREENCHER]",
-    endereco: "[PREENCHER] Rua Exemplo, 123, Centro, Niterói - RJ",
-    // [PREENCHER] Coordenadas do salão para o mapa (OpenStreetMap).
-    latitude: -22.8969,
-    longitude: -43.1236,
+    endereco: "Rua General Otávio Póvoa, 30\nVila da Penha, Rio de Janeiro - RJ\nCEP 21221-430", // \n vira quebra de linha na tela
+    // Posição do pino "Carol Rios Curly Studio" no Google Maps (link enviado pelo Danilo em 26/09/2026).
+    latitude: -22.8462275,
+    longitude: -43.3077897,
+    mapsLink:
+      "https://www.google.com/maps/place/Carol+Rios+Curly+Studio/@-22.845822,-43.3080963,18z/data=!4m6!3m5!1s0x997b0665836545:0xccd217c3f83db5d3!8m2!3d-22.8462275!4d-43.3077897!16s%2Fg%2F11nz1gq_55",
   },
   horarios: [
     { dias: "Terça a sexta", horas: "9h às 19h" },

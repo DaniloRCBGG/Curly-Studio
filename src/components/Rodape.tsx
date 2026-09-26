@@ -1,11 +1,12 @@
 import Image from "next/image";
 import Link from "next/link";
+import { MapaBairro } from "@/components/MapaBairro";
 import { salao } from "@/conteudo/salao";
 
 export function Rodape() {
   return (
     <footer className="mt-auto bg-terra text-areia">
-      <div className="mx-auto grid max-w-6xl gap-10 px-4 py-12 sm:px-6 md:grid-cols-3">
+      <div className="mx-auto grid max-w-6xl gap-10 px-4 py-12 sm:px-6 md:grid-cols-2 lg:grid-cols-[1fr_1fr_1fr_1.2fr]">
         <div>
           <Image src="/marca/logo-secundaria-clara.svg" alt="Carol Rios Curly Studio" width={140} height={97} />
         </div>
@@ -16,7 +17,7 @@ export function Rodape() {
               {h.dias}: {h.horas}
             </p>
           ))}
-          <p className="pt-2">{salao.contato.endereco}</p>
+          <p className="pt-2 whitespace-pre-line">{salao.contato.endereco}</p>
         </div>
         <div className="space-y-2 text-sm">
           <p className="font-medium text-areia-clara">Fale com a gente</p>
@@ -36,6 +37,7 @@ export function Rodape() {
             </Link>
           </p>
         </div>
+        <MapaBairro claro zoom={15} />
       </div>
     </footer>
   );
