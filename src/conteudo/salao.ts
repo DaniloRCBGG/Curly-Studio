@@ -20,7 +20,7 @@ export const salao = {
     instagram: "@carolrioscurlystudio", // [PREENCHER]
     instagramLink: "https://instagram.com/carolrioscurlystudio", // [PREENCHER]
     email: "[PREENCHER]",
-    endereco: "[PREENCHER] rua e número, bairro - Rio de Janeiro, RJ",
+    endereco: "Rua General Otávio Póvoa, 30, Vila da Penha, Rio de Janeiro - RJ, 21221-430",
     // Posição do pino "Carol Rios Curly Studio" no Google Maps (link enviado pelo Danilo em 26/09/2026).
     latitude: -22.8462275,
     longitude: -43.3077897,
