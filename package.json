@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run",
-    "test:db": "supabase db reset && psql \"postgresql://postgres:postgres@127.0.0.1:54322/postgres\" -f supabase/tests/agendamento_test.sql -f supabase/tests/estoque_test.sql -f supabase/tests/consumo_test.sql",
+    "test:db": "supabase db reset && psql \"postgresql://postgres:postgres@127.0.0.1:54322/postgres\" -f supabase/tests/agendamento_test.sql -f supabase/tests/estoque_test.sql -f supabase/tests/consumo_test.sql -f supabase/tests/permissoes_test.sql",
     "typegen": "next typegen"
   },
   "dependencies": {
