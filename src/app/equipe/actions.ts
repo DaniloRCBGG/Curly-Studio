@@ -63,13 +63,17 @@ export async function agendarPelaEquipe(form: FormData) {
 export async function cadastrarCliente(form: FormData) {
   const { supabase } = await exigirEquipe();
   const cpf = soDigitos(texto(form, "cpf"));
+  const telefone = soDigitos(texto(form, "telefone"));
+  const email = texto(form, "email");
   if (cpf && !cpfValido(cpf)) redirect(`/equipe/clientes?erro=${encodeURIComponent("CPF inválido.")}`);
+  // Precisa de pelo menos um contato: telefone ou e-mail.
+  if (!telefone && !email) redirect(`/equipe/clientes?erro=${encodeURIComponent("Informe o telefone ou o e-mail da cliente.")}`);
   const { data, error } = await supabase
     .from("clientes")
     .insert({
       nome: texto(form, "nome"),
-      telefone: soDigitos(texto(form, "telefone")),
-      email: texto(form, "email") || null,
+      telefone: telefone || null,
+      email: email || null,
       cpf: cpf || null,
       cep: soDigitos(texto(form, "cep")) || null,
       endereco: texto(form, "endereco") || null,

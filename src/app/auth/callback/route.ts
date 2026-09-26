@@ -3,7 +3,7 @@ import { criarClienteServidor } from "@/lib/supabase/server";
 import { caminhoSeguro } from "@/lib/validacao";
 
 // Volta do login com Google: troca o código pela sessão e, se a cliente ainda não tem ficha,
-// manda completar o cadastro (telefone e CPF) antes de seguir.
+// manda completar o cadastro (CPF e CEP) antes de seguir.
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = request.nextUrl;
   const voltar = caminhoSeguro(searchParams.get("voltar"));

@@ -57,5 +57,13 @@ do $$ begin
   assert has_column_privilege('anon', 'public.funcionarias', 'nome', 'select'), 'o site precisa do nome';
 end $$;
 
+-- Ficha precisa de telefone ou e-mail.
+insert into public.clientes (nome, email) values ('Só e-mail', 'so@ex.com');
+do $$ begin
+  insert into public.clientes (nome) values ('Sem contato');
+  raise exception 'deveria exigir telefone ou e-mail';
+exception when check_violation then null;
+end $$;
+
 rollback;
 \echo PERMISSOES_OK

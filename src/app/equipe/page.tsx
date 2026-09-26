@@ -10,7 +10,7 @@ type Linha = {
   fim: string;
   status: string;
   expira_em: string | null;
-  clientes: { nome: string; telefone: string };
+  clientes: { nome: string; telefone: string | null; email: string | null };
   servicos: { nome: string };
   funcionarias: { nome: string };
   sinais: { valor: number; status: string; forma: string } | null;
@@ -31,7 +31,7 @@ export default async function AgendaDoDia({ searchParams }: PageProps<"/equipe">
   const { supabase } = await exigirEquipe();
   const { data: linhas } = await supabase
     .from("agendamentos")
-    .select("id, inicio, fim, status, expira_em, clientes(nome, telefone), servicos(nome), funcionarias(nome), sinais(valor, status, forma)")
+    .select("id, inicio, fim, status, expira_em, clientes(nome, telefone, email), servicos(nome), funcionarias(nome), sinais(valor, status, forma)")
     .gte("inicio", `${data}T00:00:00${FUSO}`)
     .lte("inicio", `${data}T23:59:59${FUSO}`)
     .in("status", ["agendado", "aguardando_sinal", "concluido"])
@@ -61,7 +61,7 @@ export default async function AgendaDoDia({ searchParams }: PageProps<"/equipe">
                   {formatarHora(a.inicio)}–{formatarHora(a.fim)} · {a.servicos.nome} com {a.funcionarias.nome}
                 </p>
                 <p className="text-sm text-terra/75">
-                  {a.clientes.nome} · {a.clientes.telefone} ·{" "}
+                  {a.clientes.nome} · {a.clientes.telefone ?? a.clientes.email} ·{" "}
                   {a.sinais ? `${reais(Number(a.sinais.valor))} ${SINAL[a.sinais.status]}${a.sinais.forma === "presencial" ? " no salão" : ""}` : "sem sinal"}
                   {a.status === "concluido" && " · concluído"}
                 </p>

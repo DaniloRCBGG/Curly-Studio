@@ -16,8 +16,8 @@ export function FormCadastro({ voltar, completar = false, nome = "" }: { voltar:
         <input className="campo" id="nome" name="nome" autoComplete="name" defaultValue={nome} required />
       </div>
       <div>
-        <label className="rotulo" htmlFor="telefone">Telefone / WhatsApp</label>
-        <input className="campo" id="telefone" name="telefone" type="tel" autoComplete="tel" placeholder="(21) 99999-9999" required />
+        <label className="rotulo" htmlFor="telefone">Telefone / WhatsApp (opcional)</label>
+        <input className="campo" id="telefone" name="telefone" type="tel" autoComplete="tel" placeholder="(21) 99999-9999" />
       </div>
       <div>
         <label className="rotulo" htmlFor="cpf">CPF</label>

@@ -10,7 +10,7 @@ const formatarCep = (v: string) => {
 };
 
 // CEP, endereço, bairro e cidade. Ao digitar o CEP, o resto vem do ViaCEP (gratuito) e a pessoa
-// só completa o número. O CEP alimenta o mapa de clientes por região no painel da Carol.
+// só completa o número. Com `obrigatorio`, só o CEP é exigido. O CEP alimenta o mapa de clientes por região no painel da Carol.
 export function CamposEndereco({ obrigatorio = false, inicial }: { obrigatorio?: boolean; inicial?: Partial<Endereco> }) {
   const [dados, setDados] = useState<Endereco>({
     cep: formatarCep(inicial?.cep ?? ""),
@@ -66,7 +66,7 @@ export function CamposEndereco({ obrigatorio = false, inicial }: { obrigatorio?:
       </div>
       <div>
         <label className="rotulo" htmlFor="bairro">Bairro</label>
-        <input className="campo" id="bairro" name="bairro" required={obrigatorio} value={dados.bairro} onChange={mudar("bairro")} />
+        <input className="campo" id="bairro" name="bairro" value={dados.bairro} onChange={mudar("bairro")} />
       </div>
       <div>
         <label className="rotulo" htmlFor="endereco">Endereço e número</label>
@@ -83,7 +83,7 @@ export function CamposEndereco({ obrigatorio = false, inicial }: { obrigatorio?:
       </div>
       <div>
         <label className="rotulo" htmlFor="cidade">Cidade</label>
-        <input className="campo" id="cidade" name="cidade" autoComplete="address-level2" required={obrigatorio} value={dados.cidade} onChange={mudar("cidade")} />
+        <input className="campo" id="cidade" name="cidade" autoComplete="address-level2" value={dados.cidade} onChange={mudar("cidade")} />
       </div>
     </>
   );

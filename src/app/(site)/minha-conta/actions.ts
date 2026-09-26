@@ -41,7 +41,7 @@ export async function salvarDados(form: FormData) {
   const campo = (n: string) => String(form.get(n) ?? "").trim();
   await supabase
     .from("clientes")
-    .update({ nome: campo("nome"), telefone: soDigitos(campo("telefone")), cep: soDigitos(campo("cep")), endereco: campo("endereco"), bairro: campo("bairro"), cidade: campo("cidade") })
+    .update({ nome: campo("nome"), telefone: soDigitos(campo("telefone")) || null, cep: soDigitos(campo("cep")), endereco: campo("endereco"), bairro: campo("bairro"), cidade: campo("cidade") })
     .eq("usuario_id", user.id);
   redirect("/minha-conta?ok=dados");
 }
