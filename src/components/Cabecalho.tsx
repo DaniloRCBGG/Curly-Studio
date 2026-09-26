@@ -4,6 +4,7 @@ import Link from "next/link";
 const links = [
   { href: "/sobre", rotulo: "Quem somos" },
   { href: "/servicos", rotulo: "Serviços" },
+  { href: "/valores", rotulo: "Valores" },
   { href: "/contato", rotulo: "Contato" },
 ];
 
