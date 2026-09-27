@@ -2,6 +2,10 @@
 \set ON_ERROR_STOP 1
 begin;
 
+-- Salão aberto todos os dias, o dia inteiro, para os horários dos testes caberem no expediente.
+insert into public.horario_funcionamento (dia_semana, abre, fecha) select d, '00:00', '23:59' from generate_series(0, 6) d
+  on conflict (dia_semana) do update set abre = excluded.abre, fecha = excluded.fecha;
+
 insert into auth.users (id, email, raw_user_meta_data) values
   ('00000000-0000-0000-0000-0000000005a1', 'cris@ex.com', '{"origem":"autocadastro","nome":"Cris","telefone":"21955550000","cpf":"11144477735"}'),
   ('00000000-0000-0000-0000-0000000005a2', 'dora@ex.com', '{"origem":"autocadastro","nome":"Dora","telefone":"21955550001","cpf":"93541134780"}'),

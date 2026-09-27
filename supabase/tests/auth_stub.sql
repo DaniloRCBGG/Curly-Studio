@@ -12,3 +12,6 @@ do $$ begin
   if not exists (select 1 from pg_roles where rolname = 'anon') then create role anon; end if;
   if not exists (select 1 from pg_roles where rolname = 'authenticated') then create role authenticated; end if;
 end $$;
+-- Conta com e-mail já confirmado por padrão (como com a confirmação desligada); os testes de
+-- confirmação inserem null e depois atualizam.
+alter table auth.users add column if not exists email_confirmed_at timestamptz default now();

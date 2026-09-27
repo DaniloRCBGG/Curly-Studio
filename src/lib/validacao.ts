@@ -14,5 +14,7 @@ export const soDigitos = (v: string) => v.replace(/\D/g, "");
 
 // Só aceita caminhos internos no parâmetro "voltar", para não virar redirecionamento aberto.
 export function caminhoSeguro(voltar: unknown, padrao = "/minha-conta"): string {
-  return typeof voltar === "string" && voltar.startsWith("/") && !voltar.startsWith("//") ? voltar : padrao;
+  // O navegador lê "/\site.com" e "/<tab>/site.com" como "//site.com" (outro site): barra invertida
+  // e caracteres de controle ficam de fora.
+  return typeof voltar === "string" && voltar.startsWith("/") && !voltar.startsWith("//") && !/[\\\x00-\x1f\x7f]/.test(voltar) ? voltar : padrao;
 }

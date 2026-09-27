@@ -95,6 +95,16 @@ export async function cadastrarCliente(form: FormData) {
   redirect(`/equipe/novo?cliente=${data.id}`);
 }
 
+// A cliente criou conta no site e já tinha ficha do balcão, mas os dados não bastaram para ligar
+// sozinho (só telefone, ou só CPF). A equipe confere com ela e junta: o histórico vai para a ficha do site.
+export async function juntarFichas(form: FormData) {
+  const { supabase } = await exigirEquipe();
+  const { error } = await supabase.rpc("juntar_fichas", { p_site: texto(form, "site"), p_balcao: texto(form, "balcao") });
+  if (error) redirect(`/equipe/clientes?erro=${encodeURIComponent("Não foi possível juntar as fichas.")}`);
+  revalidatePath("/equipe/clientes");
+  redirect("/equipe/clientes");
+}
+
 // Serviços (RF03, RF25) -------------------------------------------------------------
 
 export async function salvarServico(form: FormData) {

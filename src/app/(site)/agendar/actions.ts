@@ -13,6 +13,9 @@ const MENSAGENS: Record<string, string> = {
   horario_passado: "Esse horário já passou. Escolha outro.",
   cliente_nao_encontrada: "Não encontramos sua ficha de cliente. Fale com o salão pelo WhatsApp.",
   tamanho_obrigatorio: "Escolha o tamanho do seu cabelo antes do horário.",
+  reservas_pendentes_demais: "Você já tem reservas esperando o Pix do sinal. Pague ou cancele uma delas em Minha conta antes de reservar outra.",
+  fora_do_expediente: "Esse horário está fora do funcionamento do salão. Escolha outro.",
+  horario_muito_distante: "Ainda não abrimos a agenda para essa data. Escolha um dia mais próximo.",
 };
 
 function erroDe(mensagem: string) {

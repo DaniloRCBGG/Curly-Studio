@@ -2,7 +2,9 @@ import Link from "next/link";
 import { CamposEndereco } from "@/components/CamposEndereco";
 import { exigirEquipe } from "@/lib/auth/sessao";
 import { criarClienteAdmin } from "@/lib/supabase/admin";
-import { cadastrarCliente } from "../actions";
+import { cadastrarCliente, juntarFichas } from "../actions";
+
+type ParaJuntar = { site_id: string; site_nome: string; balcao_id: string; balcao_nome: string; motivo: string };
 
 export default async function Clientes({ searchParams }: PageProps<"/equipe/clientes">) {
   const { busca, erro } = await searchParams;
@@ -13,7 +15,7 @@ export default async function Clientes({ searchParams }: PageProps<"/equipe/clie
     const digitos = termo.replace(/\D/g, "");
     consulta = digitos.length >= 4 ? consulta.ilike("telefone", `%${digitos}%`) : consulta.ilike("nome", `%${termo}%`);
   }
-  const { data: clientes } = await consulta;
+  const [{ data: clientes }, { data: paraJuntar }] = await Promise.all([consulta, supabase.rpc("fichas_para_juntar")]);
   // Só a gerente baixa a lista de contatos para o WhatsApp do salão.
   const novasParaWhatsapp =
     perfil === "gerente"
@@ -55,6 +57,30 @@ export default async function Clientes({ searchParams }: PageProps<"/equipe/clie
         </ul>
       </section>
       <section>
+        {((paraJuntar ?? []) as ParaJuntar[]).length > 0 && (
+          <div className="cartao mb-8">
+            <h2 className="titulo text-3xl">fichas para juntar</h2>
+            <p className="mt-2 text-sm text-terra/80">
+              Estas clientes criaram conta no site e parecem ter também uma ficha do balcão. Confirme com a cliente (pelo WhatsApp ou na
+              chegada) antes de juntar: o histórico do balcão passa para a conta do site. Se não for a mesma pessoa, deixe como está.
+            </p>
+            <ul className="mt-4 space-y-3">
+              {((paraJuntar ?? []) as ParaJuntar[]).map((p) => (
+                <li key={`${p.site_id}-${p.balcao_id}`} className="flex flex-wrap items-center justify-between gap-2 text-sm">
+                  <span>
+                    <span className="font-medium">{p.site_nome}</span> (site) e <span className="font-medium">{p.balcao_nome}</span> (balcão)
+                    <span className="text-terra/70"> · {p.motivo}</span>
+                  </span>
+                  <form action={juntarFichas}>
+                    <input type="hidden" name="site" value={p.site_id} />
+                    <input type="hidden" name="balcao" value={p.balcao_id} />
+                    <button className="botao-secundario py-1.5 text-sm">Juntar</button>
+                  </form>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
         {novasParaWhatsapp !== null && (
           <div className="cartao mb-8">
             <h2 className="titulo text-3xl">contatos para o whatsapp</h2>

@@ -49,4 +49,14 @@ Testes: `npm test` (horários livres, CPF) e `npm run test:db` (reserva, sinal, 
 5. **Login com Google (opcional):** no [Google Cloud Console](https://console.cloud.google.com/), crie um projeto, configure a *tela de consentimento OAuth* (nome "Carol Rios Curly Studio", tipo externo) e crie uma credencial *ID do cliente OAuth* do tipo *Aplicativo da Web*. Em *URIs de redirecionamento autorizados*, coloque `https://SEU_PROJETO.supabase.co/auth/v1/callback` (aparece no Supabase em Authentication > Sign In / Providers > Google). Cole o *Client ID* e o *Client Secret* no Supabase, nessa mesma tela, e ative o Google. Em Authentication > URL Configuration, inclua `https://SEU_SITE/auth/callback` em *Redirect URLs*. Quem entra pelo Google completa telefone e CPF na primeira vez.
 6. **Limpeza diária:** a tarefa agendada `netlify/functions/expirar-reservas.mts` roda sozinha às 03:00 (Brasília) no site publicado. Ela aparece em *Logs > Functions* no painel da Netlify.
 
+### Segurança antes de abrir para as clientes
+
+No painel do Supabase (valem só para o projeto no ar; o `supabase/config.toml` é só para o computador):
+
+- **Authentication > Sign In / Providers > Email:** *Confirm email* ligado. Sem isso, qualquer pessoa cria conta com o e-mail de outra e, se houver ficha do balcão com esse e-mail, a conta fica ligada a ela. A ficha só é criada (ou ligada à do balcão) quando a cliente clica no link.
+- **Authentication > Sign In / Providers > Email:** senha mínima de 8 caracteres e *Prevent use of leaked passwords* (se o plano permitir).
+- **Authentication > Attack Protection:** ligar o CAPTCHA (Cloudflare Turnstile é grátis) quando o site estiver no ar, para robôs não criarem contas em massa. Precisa de um ajuste no formulário de cadastro.
+- **Nunca** colocar `SUPABASE_SERVICE_ROLE_KEY` em variável que comece com `NEXT_PUBLIC_`, nem `PIX_SIMULADO=1` no site real.
+- **Pix manual:** antes de apertar *Confirmar sinal*, conferir no app do banco que o valor caiu. Print de comprovante pode ser falso.
+
 **Plano grátis da Netlify:** 300 créditos por mês. Cada publicação gasta 15 e cada GB de tráfego gasta 20. Se acabar, o site pausa até o mês seguinte (não há cobrança). Junte os ajustes e publique poucas vezes.

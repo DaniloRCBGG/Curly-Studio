@@ -15,6 +15,8 @@ export const env = {
   pixChave: () => process.env.PIX_CHAVE,
   pixNome: () => process.env.PIX_NOME ?? "Carol Rios",
   pixCidade: () => process.env.PIX_CIDADE ?? "Rio de Janeiro",
+  // Pix de mentira (botão "simular pagamento"): liberado no computador (next dev) ou com PIX_SIMULADO=1.
+  pixSimuladoPermitido: () => process.env.PIX_SIMULADO === "1" || process.env.NODE_ENV !== "production",
   cronSecret: () => obrigatoria("CRON_SECRET", process.env.CRON_SECRET),
   supabaseConfigurado: () => Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY),
 };

@@ -6,9 +6,12 @@ import { montarPixCopiaECola } from "./pix-estatico";
 // Cobrança do sinal por Pix, em um de três modos:
 // - asaas: com ASAAS_API_KEY, cobrança no Asaas confirmada sozinha pelo webhook;
 // - manual: com PIX_CHAVE, Pix direto na chave da Carol, confirmado pela equipe no painel;
-// - simulado: sem nenhuma das duas, para testar o fluxo sem dinheiro real.
+// - simulado: sem nenhuma das duas, para testar o fluxo sem dinheiro real. Só vale fora de produção
+//   ou com PIX_SIMULADO=1: se o site for ao ar sem chave configurada, o agendamento para em vez de
+//   deixar qualquer cliente "pagar" o sinal de mentira.
+// - desligado: produção sem chave nenhuma; o site avisa que não conseguiu gerar o Pix.
 
-export type ModoPix = "asaas" | "manual" | "simulado";
+export type ModoPix = "asaas" | "manual" | "simulado" | "desligado";
 
 export type ClientePix = { nome: string; cpf: string | null; email?: string | null; telefone?: string | null; asaasCustomerId?: string | null };
 
@@ -20,7 +23,7 @@ export type CobrancaPix = {
   forma: "pix_online" | "pix_manual";
 };
 
-export const modoPix = (): ModoPix => (env.asaasApiKey() ? "asaas" : env.pixChave() ? "manual" : "simulado");
+export const modoPix = (): ModoPix => (env.asaasApiKey() ? "asaas" : env.pixChave() ? "manual" : env.pixSimuladoPermitido() ? "simulado" : "desligado");
 export const pixSimulado = () => modoPix() === "simulado";
 
 const qrCode = async (texto: string) => (await QRCode.toDataURL(texto, { margin: 1, width: 480 })).replace(/^data:image\/png;base64,/, "");
@@ -49,6 +52,7 @@ export async function criarCobrancaPix(params: {
   referencia: string; // id do agendamento
 }): Promise<CobrancaPix> {
   const modo = modoPix();
+  if (modo === "desligado") throw new Error("Pix não configurado: preencha PIX_CHAVE ou ASAAS_API_KEY");
   if (modo === "simulado") {
     const copiaECola = `PIX-SIMULADO|${params.referencia}|${params.valor.toFixed(2)}`;
     return { id: `simulado_${params.referencia}`, customerId: null, copiaECola, qrCodeBase64: await qrCode(copiaECola), forma: "pix_online" };

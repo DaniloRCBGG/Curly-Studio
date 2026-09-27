@@ -19,5 +19,8 @@ describe("caminhoSeguro", () => {
     expect(caminhoSeguro("//evil.com")).toBe("/minha-conta");
     expect(caminhoSeguro("https://evil.com")).toBe("/minha-conta");
     expect(caminhoSeguro(null)).toBe("/minha-conta");
+    expect(caminhoSeguro("/\\evil.com")).toBe("/minha-conta");
+    expect(caminhoSeguro("/\t/evil.com")).toBe("/minha-conta");
+    expect(caminhoSeguro("/\n/evil.com")).toBe("/minha-conta");
   });
 });
