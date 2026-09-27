@@ -1,0 +1,59 @@
+# Backup do banco do Supabase, duas vezes por semana, criptografado.
+# O arquivo fica em "Actions > Backup do banco > (execução) > Artifacts" por 90 dias.
+# Configuração e restauração: README, seção "Backup do banco".
+name: Backup do banco
+
+on:
+  schedule:
+    - cron: "0 6 * * 0,3" # domingo e quarta, 03:00 de Brasília
+  workflow_dispatch: # botão "Run workflow" para um backup na hora
+
+permissions:
+  contents: read
+
+concurrency:
+  group: backup-banco
+  cancel-in-progress: false
+
+jobs:
+  backup:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+      BACKUP_SENHA: ${{ secrets.BACKUP_SENHA }}
+    steps:
+      - name: Conferir se o backup está configurado
+        id: config
+        run: |
+          if [ -z "$SUPABASE_DB_URL" ] || [ -z "$BACKUP_SENHA" ]; then
+            echo "::warning::Backup não configurado: faltam os secrets SUPABASE_DB_URL e BACKUP_SENHA (ver README)."
+            echo "pronto=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "pronto=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/checkout@v4
+        if: steps.config.outputs.pronto == 'true'
+
+      # O Supabase usa Postgres 17; o pg_dump precisa ser da mesma versão ou mais novo.
+      - name: Instalar o cliente do Postgres 17
+        if: steps.config.outputs.pronto == 'true'
+        run: |
+          sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y
+          sudo apt-get install -y --no-install-recommends postgresql-client-17
+          echo "/usr/lib/postgresql/17/bin" >> "$GITHUB_PATH"
+
+      - name: Fazer o backup
+        if: steps.config.outputs.pronto == 'true'
+        run: scripts/backup-banco.sh backup
+
+      - name: Guardar o arquivo
+        if: steps.config.outputs.pronto == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: backup-banco-${{ github.run_number }}
+          path: backup/*.tar.gz.gpg
+          retention-days: 90
+          if-no-files-found: error
+          compression-level: 0 # já vem comprimido e criptografado

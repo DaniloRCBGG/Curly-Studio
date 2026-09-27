@@ -48,6 +48,7 @@ Testes: `npm test` (horários livres, CPF) e `npm run test:db` (reserva, sinal, 
 4. **Netlify:** em *Add new project > Import an existing project*, escolha o repositório no GitHub. As configurações de build já estão em `netlify.toml`. Em *Project configuration > Environment variables*, preencha as variáveis de `.env.example` (as de Supabase, `PIX_CHAVE`, `PIX_NOME`, `PIX_CIDADE` e `CRON_SECRET`; as do Asaas só se ele for usado) e publique. Cada `git push` na `main` publica uma versão nova.
 5. **Login com Google (opcional):** no [Google Cloud Console](https://console.cloud.google.com/), crie um projeto, configure a *tela de consentimento OAuth* (nome "Carol Rios Curly Studio", tipo externo) e crie uma credencial *ID do cliente OAuth* do tipo *Aplicativo da Web*. Em *URIs de redirecionamento autorizados*, coloque `https://SEU_PROJETO.supabase.co/auth/v1/callback` (aparece no Supabase em Authentication > Sign In / Providers > Google). Cole o *Client ID* e o *Client Secret* no Supabase, nessa mesma tela, e ative o Google. Em Authentication > URL Configuration, inclua `https://SEU_SITE/auth/callback` em *Redirect URLs*. Quem entra pelo Google completa telefone e CPF na primeira vez.
 6. **Limpeza diária:** a tarefa agendada `netlify/functions/expirar-reservas.mts` roda sozinha às 03:00 (Brasília) no site publicado. Ela aparece em *Logs > Functions* no painel da Netlify.
+7. **Backup do banco:** configure os dois secrets da seção abaixo. Sem eles, a tarefa de backup só avisa que não está configurada.
 
 ### Segurança antes de abrir para as clientes
 
@@ -60,3 +61,40 @@ No painel do Supabase (valem só para o projeto no ar; o `supabase/config.toml` 
 - **Pix manual:** antes de apertar *Confirmar sinal*, conferir no app do banco que o valor caiu. Print de comprovante pode ser falso.
 
 **Plano grátis da Netlify:** 300 créditos por mês. Cada publicação gasta 15 e cada GB de tráfego gasta 20. Se acabar, o site pausa até o mês seguinte (não há cobrança). Junte os ajustes e publique poucas vezes.
+
+## Backup do banco
+
+O plano grátis do Supabase não guarda backups para baixar. Por isso o GitHub faz um backup **domingo e quarta, às 03:00 de Brasília** (`.github/workflows/backup-banco.yml`, que roda `scripts/backup-banco.sh`).
+
+- **O que vai no backup:** a estrutura do banco (tabelas, regras de acesso, funções), os logins de clientes e equipe e todos os dados do salão. Um arquivo `.tar.gz.gpg` por execução.
+- **Onde fica:** em *Actions > Backup do banco*, na execução do dia, em *Artifacts*. O GitHub apaga cada arquivo depois de 90 dias, então sempre há os últimos três meses (uns 26 backups). Não vai para dentro do código: o que entra no histórico do git não sai mais, e a LGPD exige poder apagar os dados de uma cliente que pedir.
+- **Por que é criptografado:** o backup tem nome, telefone, CPF e endereço das clientes. Sem a senha (`BACKUP_SENHA`) o arquivo não abre, nem para quem tiver acesso ao GitHub.
+- **Custo:** zero. O repositório privado tem, no plano grátis, 2.000 minutos de Actions por mês e 500 MB para guardar arquivos; cada backup leva uns 2 minutos e ocupa poucos KB.
+- **Se falhar:** o GitHub manda e-mail para quem alterou a agenda do backup por último.
+
+### Configurar (uma vez, depois de criar o Supabase)
+
+1. **Connection string:** no Supabase, clique em *Connect* no topo do projeto e copie a de **Session pooler** (a *Direct connection* não funciona no GitHub, que não tem IPv6). Troque `[YOUR-PASSWORD]` pela senha do banco.
+2. **Senha do backup:** crie uma senha longa (ex.: 5 palavras aleatórias) e guarde num gerenciador de senhas da Carol, **fora do GitHub**. Sem ela nenhum backup abre, e ela não pode ser recuperada.
+3. **Secrets no GitHub:** em *Settings > Secrets and variables > Actions > New repository secret*, crie `SUPABASE_DB_URL` (a connection string) e `BACKUP_SENHA` (a senha do backup).
+4. **Testar:** em *Actions > Backup do banco > Run workflow*. Em uns 2 minutos o arquivo aparece em *Artifacts*.
+
+A agenda só vale para o que está na `main`: o backup automático começa quando este arquivo estiver lá.
+
+### Restaurar
+
+Baixe o arquivo em *Artifacts* (vem dentro de um `.zip`), descompacte e abra com a senha:
+
+```bash
+BACKUP_SENHA='a senha' scripts/abrir-backup.sh curly-studio-AAAA-MM-DD_HHMM.tar.gz.gpg
+```
+
+Para recuperar tudo, crie um projeto **novo** no Supabase e, com a connection string dele em `URL`:
+
+```bash
+cd curly-studio-AAAA-MM-DD_HHMM
+psql "$URL" -v ON_ERROR_STOP=1 -f 1-estrutura.sql
+psql "$URL" -v ON_ERROR_STOP=1 -c "set session_replication_role = replica" -f 2-contas.sql -f 3-dados.sql
+```
+
+Depois troque as chaves do Supabase nas variáveis da Netlify e refaça o passo 5 (Google), se ele estiver ativo. Apague a pasta aberta ao terminar: ali os dados ficam sem criptografia.
