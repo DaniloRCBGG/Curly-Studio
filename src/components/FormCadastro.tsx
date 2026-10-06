@@ -1,15 +1,22 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState } from "react";
+import { startTransition, useActionState } from "react";
 import { cadastrar, completarCadastro } from "@/app/(site)/entrar/actions";
 import { CamposEndereco } from "@/components/CamposEndereco";
 
 // "completar" é para quem entrou pelo Google: sem e-mail e senha, que já vieram do Google.
 export function FormCadastro({ voltar, completar = false, nome = "" }: { voltar: string; completar?: boolean; nome?: string }) {
   const [estado, acao, enviando] = useActionState(completar ? completarCadastro : cadastrar, undefined);
+  // Envio pelo onSubmit (e não por action={acao}) para o React não limpar o formulário:
+  // se der erro, a pessoa corrige só o campo errado.
+  function enviar(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const dados = new FormData(e.currentTarget);
+    startTransition(() => acao(dados));
+  }
   return (
-    <form action={acao} className="grid gap-4 sm:grid-cols-2">
+    <form onSubmit={enviar} className="grid gap-4 sm:grid-cols-2">
       <input type="hidden" name="voltar" value={voltar} />
       <div className="sm:col-span-2">
         <label className="rotulo" htmlFor="nome">Nome completo</label>
@@ -46,7 +53,11 @@ export function FormCadastro({ voltar, completar = false, nome = "" }: { voltar:
           .
         </span>
       </label>
-      {estado?.erro && <p role="alert" className="text-sm text-red-800 sm:col-span-2">{estado.erro}</p>}
+      {estado?.erro && (
+        <p role="alert" className="rounded-xl border border-red-800/20 bg-red-50 p-4 text-sm text-red-900 sm:col-span-2">
+          {estado.erro}
+        </p>
+      )}
       <button className="botao sm:col-span-2" disabled={enviando}>{enviando ? "Salvando…" : completar ? "Continuar" : "Criar conta"}</button>
     </form>
   );

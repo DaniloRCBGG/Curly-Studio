@@ -37,7 +37,7 @@ Testes: `npm test` (horários livres, CPF) e `npm run test:db` (reserva, sinal, 
 
 ## Colocar no ar
 
-1. **Supabase:** crie o projeto (plano gratuito), rode `npx supabase link` e `npx supabase db push`. Depois rode uma vez `supabase/dados/tabela-de-servicos.sql` no SQL Editor (a tabela de serviços do salão). Em Authentication > URL Configuration, coloque a URL do site em *Site URL* e em *Redirect URLs*.
+1. **Supabase:** crie o projeto (plano gratuito), rode `npx supabase link` e `npx supabase db push`. Depois rode uma vez `supabase/dados/tabela-de-servicos.sql` no SQL Editor (a tabela de serviços do salão). Em Authentication > URL Configuration, coloque a URL do site em *Site URL* e `https://SEU_SITE/**` em *Redirect URLs* (o link de "Esqueci minha senha" volta em `/auth/callback`).
 2. **Primeira gerente:** a Carol cria a conta pelo site e depois, no SQL Editor do Supabase:
    ```sql
    update usuarios set perfil = 'gerente' where id = (select id from auth.users where email = 'EMAIL_DA_CAROL');

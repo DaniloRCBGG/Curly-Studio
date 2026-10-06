@@ -16,6 +16,9 @@ export function FormEntrar({ voltar }: { voltar: string }) {
       <div>
         <label className="rotulo" htmlFor="senha">Senha</label>
         <input className="campo" id="senha" name="senha" type="password" autoComplete="current-password" required />
+        <Link href="/entrar/esqueci" className="mt-1 inline-block text-sm text-folha-escura underline-offset-4 hover:underline">
+          Esqueci minha senha
+        </Link>
       </div>
       {estado?.erro && <p role="alert" className="text-sm text-red-800">{estado.erro}</p>}
       <button className="botao w-full" disabled={enviando}>{enviando ? "Entrando…" : "Entrar"}</button>

@@ -54,9 +54,7 @@ export async function cadastrar(_: EstadoForm, form: FormData): Promise<EstadoFo
   if (error) {
     return { erro: error.message.includes("registered") ? "Já existe uma conta com este e-mail. Tente entrar." : "Não foi possível criar a conta. Tente de novo." };
   }
-  if (!data.session) {
-    return { erro: "Conta criada! Enviamos um e-mail de confirmação: clique no link e depois entre com sua senha." };
-  }
+  if (!data.session) redirect("/cadastro/confirme-email");
   redirect(caminhoSeguro(form.get("voltar"), "/agendar"));
 }
 
@@ -101,6 +99,32 @@ export async function completarCadastro(_: EstadoForm, form: FormData): Promise<
   });
   if (error && !error.message.includes("ficha_ja_existe")) return { erro: "Não foi possível salvar. Tente de novo." };
   redirect(caminhoSeguro(form.get("voltar"), "/agendar"));
+}
+
+// Esqueci a senha: o Supabase manda um link que volta em /auth/callback e abre a tela de nova senha.
+// A resposta é a mesma com ou sem conta, para não revelar quais e-mails estão cadastrados.
+export async function pedirNovaSenha(_: EstadoForm, form: FormData): Promise<EstadoForm> {
+  const email = String(form.get("email") ?? "").trim();
+  if (!email.includes("@")) return { erro: "Preencha seu e-mail." };
+  const cabecalhos = await headers();
+  const origem = cabecalhos.get("origin") ?? `${cabecalhos.get("x-forwarded-proto") ?? "https"}://${cabecalhos.get("host")}`;
+  const supabase = await criarClienteServidor();
+  await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${origem}/auth/callback?tipo=senha&voltar=${encodeURIComponent("/minha-conta/senha")}`,
+  });
+  redirect("/entrar/esqueci?enviado=1");
+}
+
+export async function trocarSenha(_: EstadoForm, form: FormData): Promise<EstadoForm> {
+  const senha = String(form.get("senha") ?? "");
+  if (senha.length < 8) return { erro: "A senha precisa ter pelo menos 8 caracteres." };
+  if (senha !== String(form.get("confirmacao") ?? "")) return { erro: "As duas senhas não são iguais." };
+  const supabase = await criarClienteServidor();
+  const { error } = await supabase.auth.updateUser({ password: senha });
+  if (error) {
+    return { erro: error.code === "same_password" ? "A nova senha precisa ser diferente da atual." : "Não foi possível trocar a senha. Tente de novo." };
+  }
+  redirect("/minha-conta/senha?ok=1");
 }
 
 export async function sair() {
