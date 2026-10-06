@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { SeletorHorario } from "@/components/SeletorHorario";
 import { disponibilidade, diasDeFuncionamento } from "@/lib/agenda/disponibilidade";
+import { usuarioAtual } from "@/lib/auth/sessao";
 import { TAMANHOS, agruparServicos, duracao, ehTamanho, listarServicos, precoPara, precosPorTamanho, reais, type Servico, type Tamanho } from "@/lib/servicos";
 import { iniciarAgendamento } from "./actions";
 
@@ -12,6 +14,10 @@ export default async function Agendar({ searchParams }: PageProps<"/agendar">) {
   const servicoId = typeof params.servico === "string" ? params.servico : undefined;
   const data = typeof params.data === "string" && /^\d{4}-\d{2}-\d{2}$/.test(params.data) ? params.data : undefined;
   const erro = typeof params.erro === "string" ? params.erro : undefined;
+
+  // A equipe agenda pelo balcão do painel, escolhendo a cliente.
+  const sessao = await usuarioAtual();
+  if (sessao && sessao.perfil !== "cliente") redirect("/equipe/novo");
 
   const servicos = await listarServicos();
   const servico = servicos.find((s) => s.id === servicoId);

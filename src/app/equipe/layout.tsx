@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { sair } from "@/app/(site)/entrar/actions";
 import { exigirEquipe } from "@/lib/auth/sessao";
 
 // Área interna: fora dos buscadores.
@@ -37,9 +38,14 @@ export default async function LayoutEquipe({ children }: LayoutProps<"/equipe">)
               </Link>
             ))}
           </nav>
-          <Link href="/minha-conta" className="ml-auto text-sm text-terra/70 hover:underline">
-            Minha conta
-          </Link>
+          <div className="ml-auto flex items-center gap-4 text-sm text-terra/70">
+            <Link href="/minha-conta/senha" className="hover:underline">
+              Trocar senha
+            </Link>
+            <form action={sair}>
+              <button className="hover:underline">Sair</button>
+            </form>
+          </div>
         </div>
       </header>
       <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-8 sm:px-6">{children}</main>

@@ -30,12 +30,14 @@ type Linha = {
 export default async function MinhaConta({ searchParams }: PageProps<"/minha-conta">) {
   const { erro, ok } = await searchParams;
   const { supabase, user, perfil } = await exigirLogin("/minha-conta");
+  // Equipe não usa a área de cliente: agenda pelo balcão e troca a senha pelo painel.
+  if (perfil !== "cliente") redirect("/equipe");
 
   const [{ data: cliente }, { data: agendamentos }] = await Promise.all([
     supabase.from("clientes").select("nome, telefone, email, cep, endereco, bairro, cidade").eq("usuario_id", user.id).maybeSingle(),
     supabase.from("agendamentos").select("id, inicio, status, expira_em, servicos(nome), funcionarias(nome), sinais(cliente_informou_em)").order("inicio", { ascending: false }).limit(30),
   ]);
-  if (!cliente && perfil === "cliente") redirect("/cadastro/completar?voltar=/minha-conta");
+  if (!cliente) redirect("/cadastro/completar?voltar=/minha-conta");
   const lista = (agendamentos ?? []) as unknown as Linha[];
   const agora = new Date();
   const proximos = lista.filter((a) => new Date(a.inicio) > agora && ["agendado", "aguardando_sinal"].includes(a.status)).reverse();
@@ -46,11 +48,9 @@ export default async function MinhaConta({ searchParams }: PageProps<"/minha-con
       <div className="flex flex-wrap items-center justify-between gap-4">
         <h1 className="titulo text-5xl">olá{cliente?.nome ? `, ${cliente.nome.split(" ")[0].toLowerCase()}` : ""}</h1>
         <div className="flex gap-2">
-          {perfil !== "cliente" && (
-            <Link href="/equipe" className="botao-secundario py-2">
-              Painel da equipe
-            </Link>
-          )}
+          <Link href="/minha-conta/senha" className="botao-secundario py-2">
+            Trocar senha
+          </Link>
           <form action={sair}>
             <button className="botao-secundario py-2">Sair</button>
           </form>
