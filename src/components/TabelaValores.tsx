@@ -48,21 +48,24 @@ export function TabelaValores({ servicos }: { servicos: Servico[] }) {
             ))}
           </div>
         )}
+        {/* Atalhos das categorias ficam na barra fixa para trocar de grupo em qualquer ponto da página. */}
+        {aba === "servicos" && gruposServicos.length > 0 && (
+          <nav aria-label="Categorias" className="-mx-4 flex w-[calc(100%+2rem)] gap-2 overflow-x-auto px-4 pb-1 sm:-mx-6 sm:w-[calc(100%+3rem)] sm:px-6">
+            {gruposServicos.map((g) => (
+              <a key={g.id} href={`#${g.id}`} className="shrink-0 rounded-full border border-terra/20 px-4 py-1.5 text-sm whitespace-nowrap hover:border-terra hover:bg-areia">
+                {g.titulo}
+              </a>
+            ))}
+          </nav>
+        )}
       </div>
 
       <AnimatePresence mode="wait">
         {aba === "servicos" ? (
           <motion.div key="servicos" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.45, ease: suave }}>
-            <nav aria-label="Categorias" className="mt-8 flex flex-wrap gap-2">
-              {gruposServicos.map((g) => (
-                <a key={g.id} href={`#${g.id}`} className="rounded-full border border-terra/20 px-4 py-1.5 text-sm hover:border-terra hover:bg-areia">
-                  {g.titulo}
-                </a>
-              ))}
-            </nav>
             {gruposServicos.length === 0 && <p className="cartao mt-8 text-terra/85">A tabela de serviços aparece aqui assim que for cadastrada no painel da equipe.</p>}
             {gruposServicos.map((g) => (
-              <section key={g.id} id={g.id} className="scroll-mt-40 pt-12">
+              <section key={g.id} id={g.id} className="scroll-mt-64 pt-12 md:scroll-mt-48">
                 <h2 className="titulo text-3xl">{g.titulo.toLowerCase()}</h2>
                 <div className="mt-6 grid gap-5 md:grid-cols-2">
                   {g.servicos.map((s, i) => (
