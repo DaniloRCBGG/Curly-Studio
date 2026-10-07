@@ -43,6 +43,9 @@ export async function iniciarAgendamento(form: FormData) {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) redirect(`/entrar?voltar=${encodeURIComponent(voltar)}`);
+  // A equipe pode navegar pelo agendamento para ver o que a cliente vê, mas agenda pelo balcão.
+  const { data: usuario } = await supabase.from("usuarios").select("perfil").eq("id", user.id).maybeSingle();
+  if (usuario && usuario.perfil !== "cliente") redirect("/equipe/novo");
   // Quem entrou pelo Google e ainda não completou o cadastro não tem ficha (nem CPF para o Pix).
   const { data: ficha } = await supabase.from("clientes").select("id").eq("usuario_id", user.id).maybeSingle();
   if (!ficha) redirect(`/cadastro/completar?voltar=${encodeURIComponent(voltar)}`);

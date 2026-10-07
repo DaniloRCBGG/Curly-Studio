@@ -186,7 +186,10 @@ export default async function Ajuda() {
           <li>Em Minha conta vê os próximos horários, paga um sinal pendente, remarca, cancela e atualiza os dados.</li>
           <li>Na aba Valores vê a tabela de preços e escolhe o tamanho do cabelo para ver só o que vale para ela.</li>
         </ul>
-        <p className="text-sm text-terra/75">Quem é da equipe não usa a área de cliente: para marcar um horário para alguém, use o balcão.</p>
+        <p className="text-sm text-terra/75">
+          Logada, você navega pelo site e pelo agendamento exatamente como a cliente vê; só o botão final leva ao balcão. Para testar o caminho inteiro, com Pix e Minha conta, crie uma
+          conta de cliente com outro e-mail.
+</p>
       </Secao>
     </div>
   );

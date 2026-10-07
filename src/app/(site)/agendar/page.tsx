@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { SeletorHorario } from "@/components/SeletorHorario";
 import { disponibilidade, diasDeFuncionamento } from "@/lib/agenda/disponibilidade";
 import { usuarioAtual } from "@/lib/auth/sessao";
@@ -15,9 +14,9 @@ export default async function Agendar({ searchParams }: PageProps<"/agendar">) {
   const data = typeof params.data === "string" && /^\d{4}-\d{2}-\d{2}$/.test(params.data) ? params.data : undefined;
   const erro = typeof params.erro === "string" ? params.erro : undefined;
 
-  // A equipe agenda pelo balcão do painel, escolhendo a cliente.
+  // A equipe vê o agendamento como a cliente vê, mas o botão final leva ao balcão do painel.
   const sessao = await usuarioAtual();
-  if (sessao && sessao.perfil !== "cliente") redirect("/equipe/novo");
+  const daEquipe = !!sessao && sessao.perfil !== "cliente";
 
   const servicos = await listarServicos();
   const servico = servicos.find((s) => s.id === servicoId);
@@ -36,6 +35,16 @@ export default async function Agendar({ searchParams }: PageProps<"/agendar">) {
           </li>
         ))}
       </ol>
+
+      {daEquipe && (
+        <p className="mt-6 rounded-xl bg-areia p-4 text-sm">
+          Você está vendo o agendamento como a cliente vê. Para marcar um horário para alguém, use o{" "}
+          <Link href="/equipe/clientes" className="font-medium text-folha-escura underline">
+            agendamento pelo balcão
+          </Link>
+          .
+        </p>
+      )}
 
       {erro && (
         <p role="alert" className="mt-6 rounded-xl border border-red-800/20 bg-red-50 p-4 text-red-900">
