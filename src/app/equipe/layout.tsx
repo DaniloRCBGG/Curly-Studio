@@ -39,6 +39,9 @@ export default async function LayoutEquipe({ children }: LayoutProps<"/equipe">)
             ))}
           </nav>
           <div className="ml-auto flex items-center gap-4 text-sm text-terra/70">
+            <Link href="/equipe/ajuda" className="font-medium text-folha-escura hover:underline">
+              Ajuda
+            </Link>
             <Link href="/minha-conta/senha" className="hover:underline">
               Trocar senha
             </Link>
