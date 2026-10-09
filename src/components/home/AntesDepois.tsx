@@ -1,6 +1,6 @@
 "use client";
 
-import { AnimatePresence, motion, useInView, useReducedMotion } from "motion/react";
+import { AnimatePresence, animate, motion, useInView, useMotionValue, useMotionValueEvent, useReducedMotion, useTransform } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import type { Transformacao } from "@/lib/antes-depois";
 import { ArteProvisoria } from "./ArteProvisoria";
@@ -15,9 +15,9 @@ function Foto({ src, tipo, n, alt }: { src: string; tipo: "antes" | "depois"; n:
   return <img src={src} alt={alt} className="h-full w-full object-cover" draggable={false} />;
 }
 
-// Antes e depois das clientes. O palco mostra sempre o depois; o antes só aparece enquanto a pessoa
-// segura o botão "ver o antes" (ou a barra de espaço), abrindo num círculo a partir do botão, e some
-// quando ela solta. Assim os cachos sem tratamento nunca ficam expostos sozinhos.
+// Antes e depois das clientes. O palco mostra sempre o depois; o antes fica atrás de uma cortina presa
+// na borda esquerda, que a pessoa puxa pela alça (ou pelas setas do teclado). Ao soltar, a cortina volta
+// sozinha e o depois fica inteiro de novo. Assim os cachos sem tratamento nunca ficam expostos sozinhos.
 export function AntesDepois({ itens, provisorias }: { itens: Transformacao[]; provisorias: boolean }) {
   const [atual, setAtual] = useState(0);
   const [vendoAntes, setVendoAntes] = useState(false);
@@ -37,12 +37,37 @@ export function AntesDepois({ itens, provisorias }: { itens: Transformacao[]; pr
 
   const escolher = (i: number) => {
     setMexeu(true);
-    setVendoAntes(false);
+    x.set(0);
     setAtual(i);
   };
-  const segurar = (sim: boolean) => {
-    if (sim) setMexeu(true);
-    setVendoAntes(sim);
+
+  // Cortina: x é quantos pixels do antes estão à mostra, a partir da esquerda.
+  const [largura, setLargura] = useState(0);
+  useEffect(() => {
+    const p = palco.current;
+    if (!p) return;
+    const medir = () => setLargura(p.clientWidth);
+    medir();
+    const obs = new ResizeObserver(medir);
+    obs.observe(p);
+    return () => obs.disconnect();
+  }, []);
+  const x = useMotionValue(0);
+  const recorte = useTransform(x, (v) => `inset(0 calc(100% - ${v}px) 0 0)`);
+  const linhaVisivel = useTransform(x, [0, 12], [0, 1]);
+  const [abertura, setAbertura] = useState(0);
+  useMotionValueEvent(x, "change", (v) => {
+    setVendoAntes(v > 4);
+    setAbertura(largura ? v / largura : 0);
+  });
+  const volta = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const voltar = () => {
+    clearTimeout(volta.current);
+    animate(x, 0, reduzir ? { duration: 0 } : { type: "spring", stiffness: 260, damping: 30 });
+  };
+  const agendarVolta = () => {
+    clearTimeout(volta.current);
+    volta.current = setTimeout(voltar, 2500);
   };
 
   if (!item) return null;
@@ -55,7 +80,7 @@ export function AntesDepois({ itens, provisorias }: { itens: Transformacao[]; pr
         <CabecalhoSecao
           rotulo="Galeria"
           titulo="nossos cachos"
-          texto="Cada cliente chega com uma história e sai com cachos definidos, hidratados e do jeito dela. Segure o botão na foto para ver como ela chegou."
+          texto="Cada cliente chega com uma história e sai com cachos definidos, hidratados e do jeito dela. Puxe a alça na foto para ver como ela chegou."
         />
         {/* Foto à esquerda; no computador, serviço e miniaturas à direita (no celular, embaixo). */}
         <div className="mt-10 grid items-start gap-10 lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:gap-16">
@@ -77,19 +102,9 @@ export function AntesDepois({ itens, provisorias }: { itens: Transformacao[]; pr
               </motion.div>
             </AnimatePresence>
 
-            {/* O antes abre num círculo a partir do botão e fecha quando a pessoa solta. */}
-            <motion.div
-              className="pointer-events-none absolute inset-0"
-              initial={false}
-              animate={{
-                clipPath: vendoAntes ? "circle(150% at 3.25rem calc(100% - 3.25rem))" : "circle(0% at 3.25rem calc(100% - 3.25rem))",
-              }}
-              transition={{
-                duration: reduzir ? 0 : vendoAntes ? 0.7 : 0.5,
-                ease: suave,
-              }}
-              aria-hidden={!vendoAntes}
-            >
+            {/* O antes fica atrás de uma cortina presa na borda esquerda: aparece só enquanto a pessoa
+                puxa a alça, e a cortina volta sozinha quando ela solta. */}
+            <motion.div className="pointer-events-none absolute inset-0" style={{ clipPath: recorte }} aria-hidden={!vendoAntes}>
               <Foto src={item.antes} tipo="antes" n={atual} alt={alt("Antes")} />
             </motion.div>
 
@@ -107,45 +122,56 @@ export function AntesDepois({ itens, provisorias }: { itens: Transformacao[]; pr
               </AnimatePresence>
             </div>
 
-            <button
-              type="button"
-              className="absolute bottom-4 left-4 flex touch-none items-center gap-3 rounded-full bg-areia-clara py-2 pr-5 pl-2 text-sm font-medium text-terra shadow-lg transition-transform focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-folha-escura active:scale-95"
-              aria-pressed={vendoAntes}
-              onPointerDown={(e) => {
-                e.currentTarget.setPointerCapture(e.pointerId);
-                segurar(true);
-              }}
-              onPointerUp={() => segurar(false)}
-              onPointerCancel={() => segurar(false)}
-              onLostPointerCapture={() => segurar(false)}
-              onKeyDown={(e) => {
-                if ((e.key === " " || e.key === "Enter") && !e.repeat) {
-                  e.preventDefault();
-                  segurar(true);
-                }
-              }}
-              onKeyUp={(e) => (e.key === " " || e.key === "Enter") && segurar(false)}
-              onBlur={() => segurar(false)}
-              onContextMenu={(e) => e.preventDefault()}
+            <motion.div
+              className="absolute inset-y-0 left-0 z-10 w-16 cursor-grab touch-none active:cursor-grabbing"
+              style={{ x }}
+              drag="x"
+              dragConstraints={{ left: 0, right: Math.max(0, largura - 64) }}
+              dragElastic={0}
+              dragMomentum={false}
+              onDragStart={() => setMexeu(true)}
+              onDragEnd={voltar}
             >
-              <span className="relative flex size-9 items-center justify-center rounded-full bg-folha-escura text-areia-clara">
-                {!vendoAntes && !reduzir && <span className="absolute inset-0 animate-ping rounded-full bg-folha-escura/40" />}
+              <motion.span className="block h-full w-0.5 bg-areia-clara shadow-[0_0_12px_rgba(0,0,0,0.35)]" style={{ opacity: linhaVisivel }} />
+              <span
+                role="slider"
+                tabIndex={0}
+                aria-label="Puxe para ver o antes"
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-valuenow={Math.round(abertura * 100)}
+                className="absolute top-1/2 left-2 flex size-12 -translate-y-1/2 items-center justify-center rounded-full bg-areia-clara text-terra shadow-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-folha-escura"
+                onKeyDown={(e) => {
+                  if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
+                  e.preventDefault();
+                  setMexeu(true);
+                  const passo = largura * 0.15 * (e.key === "ArrowRight" ? 1 : -1);
+                  animate(x, Math.min(largura - 64, Math.max(0, x.get() + passo)), { duration: 0.25 });
+                  agendarVolta();
+                }}
+                onBlur={voltar}
+              >
+                {!vendoAntes && !reduzir && <span className="absolute inset-0 animate-ping rounded-full bg-areia-clara/40" />}
                 <svg
                   viewBox="0 0 24 24"
                   className="relative size-5"
                   fill="none"
                   stroke="currentColor"
-                  strokeWidth={1.8}
+                  strokeWidth={2}
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   aria-hidden
                 >
-                  <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z" />
-                  <circle cx="12" cy="12" r="3" />
+                  <path d="m9 6-6 6 6 6M15 6l6 6-6 6" />
                 </svg>
               </span>
-              {vendoAntes ? "solte para voltar" : "segure para ver o antes"}
-            </button>
+            </motion.div>
+            <motion.p
+              className="pointer-events-none absolute top-1/2 left-16 -translate-y-1/2 rounded-full bg-terra/75 px-3 py-1.5 text-sm text-areia-clara backdrop-blur"
+              animate={{ opacity: vendoAntes ? 0 : 1, x: vendoAntes ? -8 : 0 }}
+            >
+              puxe para ver o antes
+            </motion.p>
 
             {/* Tempo até a próxima cliente */}
             {automatico && (
