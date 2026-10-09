@@ -17,7 +17,7 @@ export type Transformacao = {
 // em 09/10/2026). Antes de publicar o site, confirmar a autorização das clientes ou trocar pelas do painel.
 const TESTE = "/midia/antes-depois-teste";
 export const TRANSFORMACOES_EXEMPLO: Transformacao[] = [
-  { id: "teste-1", antes: `${TESTE}/1-antes.webp`, depois: `${TESTE}/1-depois.webp`, servico: "Iluminação", legenda: null },
+  { id: "teste-1", antes: `${TESTE}/1-antes.webp`, depois: `${TESTE}/1-depois.webp`, servico: "Corte + tratamento", legenda: null },
   { id: "teste-2", antes: `${TESTE}/2-antes.webp`, depois: `${TESTE}/2-depois.webp`, servico: "Coloração cobre", legenda: null },
 ];
 
