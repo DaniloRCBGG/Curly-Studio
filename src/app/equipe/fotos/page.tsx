@@ -22,8 +22,8 @@ export default async function Fotos() {
       <div>
         <h1 className="titulo text-4xl">fotos de antes e depois</h1>
         <p className="mt-2 max-w-2xl text-terra/85">
-          Elas aparecem na home do site, na ordem desta lista. Quem visita vê primeiro o depois; o antes só aparece enquanto a pessoa segura o botão na foto. Enquanto a
-          lista estiver vazia, o site mostra desenhos provisórios.
+          Elas aparecem na home do site, na ordem desta lista. Quem visita vê primeiro o depois; o antes só aparece enquanto a pessoa mexe na foto, e some
+          quando ela solta. Enquanto a lista estiver vazia, o site mostra desenhos provisórios.
         </p>
       </div>
 

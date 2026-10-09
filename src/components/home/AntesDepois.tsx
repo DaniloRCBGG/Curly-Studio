@@ -81,28 +81,30 @@ export function AntesDepois({ itens, provisorias }: { itens: Transformacao[]; pr
                 </AnimatePresence>
               </div>
 
-              <ul className="mt-8 flex gap-3 overflow-x-auto pb-2 sm:grid sm:grid-cols-4 sm:overflow-visible" aria-label="Escolha uma transformação">
-                {itens.map((t, i) => (
-                  <li key={t.id} className="shrink-0">
-                    <button
-                      type="button"
-                      onClick={() => escolher(i)}
-                      aria-current={i === atual}
-                      aria-label={`Ver ${t.servico}`}
-                      className={`relative block aspect-[4/5] w-20 overflow-hidden rounded-2xl transition duration-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-areia sm:w-full ${
-                        i === atual ? "opacity-100 ring-2 ring-folha ring-offset-2 ring-offset-terra" : "opacity-55 hover:opacity-90"
-                      }`}
-                    >
-                      {t.depois ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={t.depois} alt="" className="h-full w-full object-cover" draggable={false} />
-                      ) : (
-                        <ArteProvisoria tipo="depois" n={i} rotulo={false} />
-                      )}
-                    </button>
-                  </li>
-                ))}
-              </ul>
+              {itens.length > 1 && (
+                <ul className="mt-8 flex gap-3 overflow-x-auto pb-2 sm:grid sm:grid-cols-4 sm:overflow-visible" aria-label="Escolha uma transformação">
+                  {itens.map((t, i) => (
+                    <li key={t.id} className="shrink-0">
+                      <button
+                        type="button"
+                        onClick={() => escolher(i)}
+                        aria-current={i === atual}
+                        aria-label={`Ver ${t.servico}`}
+                        className={`relative block aspect-[4/5] w-20 overflow-hidden rounded-2xl transition duration-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-areia sm:w-full ${
+                          i === atual ? "opacity-100 ring-2 ring-folha ring-offset-2 ring-offset-terra" : "opacity-55 hover:opacity-90"
+                        }`}
+                      >
+                        {t.depois ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={t.depois} alt="" className="h-full w-full object-cover" draggable={false} />
+                        ) : (
+                          <ArteProvisoria tipo="depois" n={i} rotulo={false} />
+                        )}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
               {provisorias && <p className="mt-4 text-xs text-areia/60">Fotos provisórias: as reais entram pelo painel da equipe, em Fotos.</p>}
             </div>
           </div>
