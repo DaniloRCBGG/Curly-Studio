@@ -49,70 +49,20 @@ export function AntesDepois({ itens, provisorias }: { itens: Transformacao[]; pr
   const alt = (tipo: string) => `${tipo} do serviço ${item.servico}${item.legenda ? ` (${item.legenda})` : ""}`;
 
   return (
-    <section className="overflow-hidden bg-terra py-20 text-areia sm:py-28">
+    // Fica no lugar da antiga galeria "nossos cachos", entre os valores e os serviços.
+    <section className="overflow-hidden bg-areia py-20">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
-        {/* No celular: título, foto e depois a escolha da cliente. No computador: foto à esquerda, o resto à direita. */}
-        <div className="grid items-center gap-10 lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:gap-16">
-          {/* "contents" no celular: título e escolha viram itens da grade, um acima e outro abaixo da foto. */}
-          <div className="contents lg:col-start-2 lg:row-start-1 lg:flex lg:flex-col lg:gap-8">
-            <div className="order-1">
-              <CabecalhoSecao
-                escuro
-                rotulo="Antes e depois"
-                titulo="cachos que contam histórias"
-                texto="Cada cliente chega com uma história e sai com cachos definidos, hidratados e do jeito dela. Segure o botão na foto para ver como ela chegou."
-              />
-            </div>
-
-            {/* Serviço da foto e escolha da cliente */}
-            <div className="order-3">
-              <div className="min-h-20 border-l-2 border-folha pl-5" aria-live="polite">
-                <AnimatePresence mode="wait" initial={false}>
-                  <motion.div
-                    key={item.id}
-                    initial={{ opacity: 0, x: 16 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -16 }}
-                    transition={{ duration: 0.4, ease: suave }}
-                  >
-                    <p className="titulo text-3xl text-areia-clara">{item.servico.toLowerCase()}</p>
-                    {item.legenda && <p className="mt-1 text-areia/80">{item.legenda}</p>}
-                  </motion.div>
-                </AnimatePresence>
-              </div>
-
-              {itens.length > 1 && (
-                <ul className="mt-8 flex gap-3 overflow-x-auto pb-2 sm:grid sm:grid-cols-4 sm:overflow-visible" aria-label="Escolha uma transformação">
-                  {itens.map((t, i) => (
-                    <li key={t.id} className="shrink-0">
-                      <button
-                        type="button"
-                        onClick={() => escolher(i)}
-                        aria-current={i === atual}
-                        aria-label={`Ver ${t.servico}`}
-                        className={`relative block aspect-[4/5] w-20 overflow-hidden rounded-2xl transition duration-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-areia sm:w-full ${
-                          i === atual ? "opacity-100 ring-2 ring-folha ring-offset-2 ring-offset-terra" : "opacity-55 hover:opacity-90"
-                        }`}
-                      >
-                        {t.depois ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img src={t.depois} alt="" className="h-full w-full object-cover" draggable={false} />
-                        ) : (
-                          <ArteProvisoria tipo="depois" n={i} rotulo={false} />
-                        )}
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              )}
-              {provisorias && <p className="mt-4 text-xs text-areia/60">Fotos provisórias: as reais entram pelo painel da equipe, em Fotos.</p>}
-            </div>
-          </div>
-
+        <CabecalhoSecao
+          rotulo="Galeria"
+          titulo="nossos cachos"
+          texto="Cada cliente chega com uma história e sai com cachos definidos, hidratados e do jeito dela. Segure o botão na foto para ver como ela chegou."
+        />
+        {/* Foto à esquerda; no computador, serviço e miniaturas à direita (no celular, embaixo). */}
+        <div className="mt-10 grid items-start gap-10 lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:gap-16">
           {/* Palco */}
           <div
             ref={palco}
-            className="relative mx-auto aspect-[4/5] w-full max-w-md select-none overflow-hidden rounded-[2rem] bg-areia/10 shadow-2xl shadow-black/30 order-2 lg:col-start-1 lg:row-start-1 lg:max-w-none"
+            className="relative mx-auto aspect-[4/5] w-full max-w-md select-none overflow-hidden rounded-[2rem] bg-terra/10 shadow-xl shadow-terra/15 lg:max-w-none"
           >
             <AnimatePresence initial={false}>
               <motion.div
@@ -143,7 +93,7 @@ export function AntesDepois({ itens, provisorias }: { itens: Transformacao[]; pr
               <Foto src={item.antes} tipo="antes" n={atual} alt={alt("Antes")} />
             </motion.div>
 
-            <div className="pointer-events-none absolute top-4 left-4 overflow-hidden rounded-full bg-terra/70 px-3 py-1 text-xs font-medium tracking-widest uppercase backdrop-blur">
+            <div className="pointer-events-none absolute top-4 left-4 overflow-hidden rounded-full bg-terra/70 px-3 py-1 text-xs text-areia-clara font-medium tracking-widest uppercase backdrop-blur">
               <AnimatePresence mode="popLayout" initial={false}>
                 <motion.span
                   key={vendoAntes ? "a" : "d"}
@@ -159,7 +109,7 @@ export function AntesDepois({ itens, provisorias }: { itens: Transformacao[]; pr
 
             <button
               type="button"
-              className="absolute bottom-4 left-4 flex touch-none items-center gap-3 rounded-full bg-areia-clara py-2 pr-5 pl-2 text-sm font-medium text-terra shadow-lg transition-transform focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-areia active:scale-95"
+              className="absolute bottom-4 left-4 flex touch-none items-center gap-3 rounded-full bg-areia-clara py-2 pr-5 pl-2 text-sm font-medium text-terra shadow-lg transition-transform focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-folha-escura active:scale-95"
               aria-pressed={vendoAntes}
               onPointerDown={(e) => {
                 e.currentTarget.setPointerCapture(e.pointerId);
@@ -210,6 +160,50 @@ export function AntesDepois({ itens, provisorias }: { itens: Transformacao[]; pr
                 }}
               />
             )}
+          </div>
+
+          {/* Serviço da foto e escolha da cliente */}
+          <div className="lg:pt-6">
+            <div className="min-h-20 border-l-2 border-folha-escura pl-5" aria-live="polite">
+              <AnimatePresence mode="wait" initial={false}>
+                <motion.div
+                  key={item.id}
+                  initial={{ opacity: 0, x: 16 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -16 }}
+                  transition={{ duration: 0.4, ease: suave }}
+                >
+                  <p className="titulo text-3xl">{item.servico.toLowerCase()}</p>
+                  {item.legenda && <p className="mt-1 text-terra/80">{item.legenda}</p>}
+                </motion.div>
+              </AnimatePresence>
+            </div>
+
+            {itens.length > 1 && (
+              <ul className="mt-8 flex gap-3 overflow-x-auto pb-2 sm:grid sm:grid-cols-4 sm:overflow-visible" aria-label="Escolha uma transformação">
+                {itens.map((t, i) => (
+                  <li key={t.id} className="shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => escolher(i)}
+                      aria-current={i === atual}
+                      aria-label={`Ver ${t.servico}`}
+                      className={`relative block aspect-[4/5] w-20 overflow-hidden rounded-2xl transition duration-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-folha-escura sm:w-full ${
+                        i === atual ? "opacity-100 ring-2 ring-folha-escura ring-offset-2 ring-offset-areia" : "opacity-55 hover:opacity-90"
+                      }`}
+                    >
+                      {t.depois ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={t.depois} alt="" className="h-full w-full object-cover" draggable={false} />
+                      ) : (
+                        <ArteProvisoria tipo="depois" n={i} rotulo={false} />
+                      )}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+            {provisorias && <p className="mt-4 text-xs text-terra/70">Fotos provisórias: as reais entram pelo painel da equipe, em Fotos.</p>}
           </div>
         </div>
       </div>
