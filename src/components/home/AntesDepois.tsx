@@ -203,7 +203,7 @@ export function AntesDepois({ itens, provisorias }: { itens: Transformacao[]; pr
                 ))}
               </ul>
             )}
-            {provisorias && <p className="mt-4 text-xs text-terra/70">Fotos provisórias: as reais entram pelo painel da equipe, em Fotos.</p>}
+            {provisorias && <p className="mt-4 text-xs text-terra/70">Fotos de teste: as definitivas entram pelo painel da equipe, em Fotos.</p>}
           </div>
         </div>
       </div>

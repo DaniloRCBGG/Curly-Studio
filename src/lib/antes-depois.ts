@@ -13,12 +13,12 @@ export type Transformacao = {
   legenda: string | null;
 };
 
-// Enquanto não houver fotos cadastradas, a home mostra estes exemplos com arte provisória.
+// Enquanto não houver fotos cadastradas no painel, a home mostra estas fotos de teste (enviadas pelo Danilo
+// em 09/10/2026). Antes de publicar o site, confirmar a autorização das clientes ou trocar pelas do painel.
+const TESTE = "/midia/antes-depois-teste";
 export const TRANSFORMACOES_EXEMPLO: Transformacao[] = [
-  { id: "exemplo-1", antes: "", depois: "", servico: "Corte + definição", legenda: "Cachos 3B, primeira visita" },
-  { id: "exemplo-2", antes: "", depois: "", servico: "Transição capilar", legenda: "Seis meses de acompanhamento" },
-  { id: "exemplo-3", antes: "", depois: "", servico: "Hidratação profunda", legenda: "Crespos 4A, mais brilho e menos frizz" },
-  { id: "exemplo-4", antes: "", depois: "", servico: "Coloração", legenda: "Mechas cobre com cachos definidos" },
+  { id: "teste-1", antes: `${TESTE}/1-antes.webp`, depois: `${TESTE}/1-depois.webp`, servico: "Iluminação", legenda: null },
+  { id: "teste-2", antes: `${TESTE}/2-antes.webp`, depois: `${TESTE}/2-depois.webp`, servico: "Coloração cobre", legenda: null },
 ];
 
 export async function listarTransformacoes(): Promise<Transformacao[]> {
