@@ -13,6 +13,9 @@ const cabecalhosDeSeguranca = [
 ];
 
 const nextConfig: NextConfig = {
+  // Envio das fotos de antes e depois pelo painel: o navegador já reduz cada foto (cerca de 300 KB),
+  // mas o par passa do limite padrão de 1 MB das Server Actions.
+  experimental: { serverActions: { bodySizeLimit: "4mb" } },
   async headers() {
     return [{ source: "/:path*", headers: cabecalhosDeSeguranca }];
   },

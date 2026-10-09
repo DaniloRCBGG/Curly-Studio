@@ -16,6 +16,7 @@ export default async function LayoutEquipe({ children }: LayoutProps<"/equipe">)
     { href: "/equipe/clientes", rotulo: "Clientes" },
     { href: "/equipe/servicos", rotulo: "Serviços" },
     { href: "/equipe/estoque", rotulo: "Estoque", aviso: estoqueBaixo ?? 0 },
+    { href: "/equipe/fotos", rotulo: "Fotos" },
     ...(perfil === "gerente" ? [{ href: "/equipe/funcionarias", rotulo: "Equipe" }] : []),
   ];
   return (

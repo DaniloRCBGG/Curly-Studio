@@ -1,14 +1,16 @@
 import Link from "next/link";
 import { ComoFunciona } from "@/components/home/ComoFunciona";
 import { Faixa } from "@/components/home/Faixa";
-import { Galeria } from "@/components/home/Galeria";
+import { AntesDepois } from "@/components/home/AntesDepois";
 import { Hero } from "@/components/home/Hero";
 import { Revelar } from "@/components/home/Revelar";
 import { ServicosHome } from "@/components/home/ServicosHome";
 import { TextoRolagem } from "@/components/home/TextoRolagem";
 import { salao } from "@/conteudo/salao";
+import { TRANSFORMACOES_EXEMPLO, listarTransformacoes } from "@/lib/antes-depois";
 
-export default function Inicio() {
+export default async function Inicio() {
+  const transformacoes = await listarTransformacoes();
   return (
     <>
       <Hero />
@@ -33,7 +35,7 @@ export default function Inicio() {
         </div>
       </section>
 
-      <Galeria />
+      <AntesDepois itens={transformacoes.length ? transformacoes : TRANSFORMACOES_EXEMPLO} provisorias={!transformacoes.length} />
 
       <ServicosHome />
 
