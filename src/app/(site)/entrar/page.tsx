@@ -13,9 +13,11 @@ export default async function Entrar({ searchParams }: PageProps<"/entrar">) {
       <h1 className="titulo text-5xl">entrar</h1>
       <p className="mt-3 text-terra/75">Entre para agendar e acompanhar seus horários.</p>
       <div className="cartao mt-8">
-        {erro === "google" && (
-          <p role="alert" className="mb-4 text-sm text-red-800">
-            Não foi possível entrar com o Google. Tente de novo ou use e-mail e senha.
+        {(erro === "google" || erro === "google_indisponivel") && (
+          <p role="alert" className="mb-4 rounded-xl border border-red-800/20 bg-red-50 p-4 text-sm text-red-900">
+            {erro === "google"
+              ? "Não foi possível entrar com o Google. Tente de novo ou use e-mail e senha."
+              : "O login com Google ainda não está disponível. Por enquanto, use e-mail e senha."}
           </p>
         )}
         <BotaoGoogle voltar={destino} />

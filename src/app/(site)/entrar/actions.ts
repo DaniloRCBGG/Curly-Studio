@@ -2,6 +2,7 @@
 
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { env } from "@/lib/env";
 import { criarClienteServidor } from "@/lib/supabase/server";
 import { caminhoSeguro, cpfValido, soDigitos } from "@/lib/validacao";
 
@@ -58,9 +59,22 @@ export async function cadastrar(_: EstadoForm, form: FormData): Promise<EstadoFo
   redirect(caminhoSeguro(form.get("voltar"), "/agendar"));
 }
 
-// Login com Google: o Supabase manda para a tela do Google e volta em /auth/callback.
+async function googleAtivo() {
+  try {
+    const resposta = await fetch(`${env.supabaseUrl()}/auth/v1/settings`, { headers: { apikey: env.supabaseAnonKey() }, next: { revalidate: 300 } });
+    const config = (await resposta.json()) as { external?: { google?: boolean } };
+    return config.external?.google === true;
+  } catch {
+    return true; // Na dúvida, segue o caminho normal: o callback trata a falha.
+  }
+}
+
+// Login com Google: o Supabase manda para a tela do Google e volta em /auth/callback. Serve para
+// entrar e para criar conta: quem já tem conta com esse Google (ou com o mesmo e-mail) entra direto.
 export async function entrarComGoogle(form: FormData) {
   const voltar = caminhoSeguro(form.get("voltar"));
+  // Com o Google desligado no Supabase, a pessoa veria um erro cru do Supabase: avisa aqui mesmo.
+  if (!(await googleAtivo())) redirect(`/entrar?voltar=${encodeURIComponent(voltar)}&erro=google_indisponivel`);
   const cabecalhos = await headers();
   const origem = cabecalhos.get("origin") ?? `${cabecalhos.get("x-forwarded-proto") ?? "https"}://${cabecalhos.get("host")}`;
   const supabase = await criarClienteServidor();
