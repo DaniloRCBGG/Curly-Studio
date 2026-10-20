@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { MenuCelular } from "@/components/MenuCelular";
 
 const links = [
   { href: "/sobre", rotulo: "Quem somos" },
@@ -11,7 +12,7 @@ const links = [
 export function Cabecalho() {
   return (
     <header className="sticky top-0 z-20 border-b border-terra/10 bg-areia-clara/90 backdrop-blur">
-      <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
+      <div className="relative mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
         <Link href="/" aria-label="Carol Rios Curly Studio, página inicial" className="shrink-0">
           <Image src="/marca/logo-primaria.svg" alt="Carol Rios Curly Studio" width={172} height={40} priority />
         </Link>
@@ -21,12 +22,13 @@ export function Cabecalho() {
               {l.rotulo}
             </Link>
           ))}
-          <Link href="/minha-conta" className="rounded-full px-3 py-2 hover:bg-areia">
+          <Link href="/minha-conta" className="hidden rounded-full px-3 py-2 hover:bg-areia md:inline-block">
             Minha conta
           </Link>
           <Link href="/agendar" className="botao px-5 py-2">
             Agendar
           </Link>
+          <MenuCelular links={[...links, { href: "/minha-conta", rotulo: "Minha conta" }]} />
         </nav>
       </div>
     </header>
